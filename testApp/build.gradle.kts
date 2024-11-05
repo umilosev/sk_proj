@@ -11,6 +11,11 @@ repositories {
 
 dependencies {
     testImplementation(kotlin("test"))
+    runtimeOnly(project(":excelImpl"))
+    runtimeOnly(project(":csvImpl"))
+    runtimeOnly(project(":pdfImpl"))
+    runtimeOnly(project(":textImpl"))
+    implementation(project(":spec"))
 }
 
 tasks.test {
