@@ -1,0 +1,47 @@
+[
+  {
+    "subject": "Operating Systems",
+    "classroom": "RAF1",
+    "year": 1,
+    "group": "107",
+    "day": "Wednesday",
+    "time_from": "08:00",
+    "time_to": "10:00"
+  },
+  {
+    "subject": "Software Engineering",
+    "classroom": "RAF5",
+    "year": 4,
+    "group": "105",
+    "day": "Thursday",
+    "time_from": "14:30",
+    "time_to": "16:30"
+  },
+  {
+    "subject": "Web Programming",
+    "classroom": "RAF7",
+    "year": 3,
+    "group": "102",
+    "day": "Thursday",
+    "time_from": "15:30",
+    "time_to": "16:30"
+  },
+  {
+    "subject": "Software Engineering",
+    "classroom": "RAF4",
+    "year": 1,
+    "group": "107",
+    "day": "Friday",
+    "time_from": "09:00",
+    "time_to": "11:00"
+  },
+  {
+    "subject": "Operating Systems",
+    "classroom": "RAF4",
+    "year": 3,
+    "group": "109",
+    "day": "Wednesday",
+    "time_from": "11:00",
+    "time_to": "13:00"
+  }
+]

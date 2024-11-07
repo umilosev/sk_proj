@@ -1,3 +1,5 @@
+package testApp
+
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import spec.ReportInterface
@@ -46,7 +48,7 @@ fun main() {
     // a do tada cemo da ispisujemo tutorijal za koriscenje i pustiti korisnika da koristi program
 
     //while(true){
-        println(exporterServices.keys)
+        println("Exporters: " + exporterServices.keys + " - " + serviceLoader.count())
 
         val inputStream = object {}.javaClass.getResourceAsStream("/data.json")
         val reader = InputStreamReader(inputStream)
