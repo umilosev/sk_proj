@@ -58,20 +58,20 @@ fun main() {
 
         val inputStream = object {}.javaClass.getResourceAsStream("/data.json")
         val reader = InputStreamReader(inputStream)
-        val data = prepareData(reader)
+        var data = prepareData(reader)
         reader.close()
 
         println("Pre kalkulacije")
 
         println(data)
 
-        val result = calcEngine.calculateAverage(data, "ESPB")
+        data = calcEngine.calculateAverage(data, "ESPB")
 
         println("Nakon kalkulacije")
 
-        println(result)
+        println(data)
 
-        exporterServices["TXT"]?.generateReport(result, "txtReport.txt", true)
+        exporterServices["XLS"]?.generateReport(data, "excelReport.xlsx", true)
     //}
 
 }

@@ -3,17 +3,17 @@ package calc
 class CalculationEngine {
 
     // Funkcija za COUNT - prebrojava sve vrednosti u zadatoj koloni (može imati opcioni uslov)
-    fun calculateCount(data: Map<String, List<Any?>>, columnName: String, condition: (Any?) -> Boolean = { true }): Map<String, List<Any?>>? {
+    fun calculateCount(data: Map<String, List<String>>, columnName: String, condition: (Any?) -> Boolean = { true }): Map<String, List<String>> {
         val columnData = data[columnName]
 
         if (columnData == null) {
             println("Greška: Kolona '$columnName' ne postoji.")
-            return null
+            return data
         }
 
         val count = columnData.count(condition)
         val updatedData = data.toMutableMap()
-        updatedData["${columnName}_Count"] = listOf(count) + List(columnData.size - 1) { null }
+        updatedData["${columnName}_Count"] = listOf(count.toString()) + List(columnData.size - 1) { "" }
 
         return updatedData
     }
@@ -28,7 +28,7 @@ class CalculationEngine {
         }
 
         // Konvertovanje svih vrednosti u Double, filtracija nevalidnih vrednosti
-        val validNumbers = columnData.mapNotNull { it?.toDoubleOrNull() }
+        val validNumbers = columnData.mapNotNull { it.toDoubleOrNull() }
 
         if (validNumbers.size != columnData.size) {
             println("Greška: Neke vrednosti u koloni '$columnName' nisu validni brojevi.")
@@ -38,11 +38,11 @@ class CalculationEngine {
         val sum = validNumbers.sum()
 
         // Konvertovanje rezultata u string
-        val sumAsString = sum.toString() ?: return data
+        val sumAsString = sum.toString()
 
         // Ažuriranje podataka sa sumom kao string
         val updatedData = data.toMutableMap()
-        updatedData["${columnName}_Sum"] = (listOf(sumAsString) + List(columnData.size - 1) { "" }) as List<String>
+        updatedData["${columnName}_Sum"] = listOf(sumAsString) + List(columnData.size - 1) { "" }
 
         return updatedData
     }
@@ -58,7 +58,7 @@ class CalculationEngine {
         }
 
         // Konvertovanje svih vrednosti u Double, filtracija nevalidnih vrednosti
-        val validNumbers = columnData.mapNotNull { it?.toDoubleOrNull() }
+        val validNumbers = columnData.mapNotNull { it.toDoubleOrNull() }
 
         if (validNumbers.size != columnData.size) {
             println("Greška: Neke vrednosti u koloni '$columnName' nisu validni brojevi.")
@@ -73,12 +73,9 @@ class CalculationEngine {
         val averageAsString = average.toString()
 
         val updatedData = data.toMutableMap()
-        updatedData["${columnName}_Average"] = (listOf(averageAsString) + List(columnData.size - 1) { "" }) as List<String>
+        updatedData["${columnName}_Average"] = listOf(averageAsString) + List(columnData.size - 1) { "" }
 
         return updatedData
     }
 
-    fun isDouble(value: Any?): Boolean {
-        if(value is String) return value.toDoubleOrNull() != null else return false
-    }
 }
