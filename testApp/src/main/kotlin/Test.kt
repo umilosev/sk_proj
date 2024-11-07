@@ -1,5 +1,6 @@
 package testApp
 
+import calc.CalculationEngine
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import spec.ReportInterface
@@ -13,7 +14,8 @@ data class Schedule(
     val group: String,
     val day: String,
     val time_from: String,
-    val time_to: String
+    val time_to: String,
+    val ESPB: String,
 )
 
 fun prepareData(jsonData: InputStreamReader): Map<String, List<String>> {
@@ -29,7 +31,8 @@ fun prepareData(jsonData: InputStreamReader): Map<String, List<String>> {
         "group" to schedules.map { it.group },
         "day" to schedules.map { it.day },
         "time_from" to schedules.map { it.time_from },
-        "time_to" to schedules.map { it.time_to }
+        "time_to" to schedules.map { it.time_to },
+        "ESPB" to schedules.map { it.ESPB }
     )
 
     return reportData
@@ -37,6 +40,8 @@ fun prepareData(jsonData: InputStreamReader): Map<String, List<String>> {
 
 fun main() {
     val serviceLoader = ServiceLoader.load(ReportInterface::class.java)
+
+    val calcEngine = CalculationEngine()
 
     val exporterServices = mutableMapOf<String, ReportInterface> ()
 
@@ -56,9 +61,17 @@ fun main() {
         val data = prepareData(reader)
         reader.close()
 
+        println("Pre kalkulacije")
+
         println(data)
 
-        exporterServices["CSV"]?.generateReport(data, "csvreport.csv", true)
+        val result = calcEngine.calculateSum(data, "ESPB")
+
+        println("Nakon kalkulacije")
+
+        println(result)
+
+        exporterServices["CSV"]?.generateReport(result, "csvReport.csv", true)
     //}
 
 }

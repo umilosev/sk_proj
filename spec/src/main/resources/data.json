@@ -6,7 +6,8 @@
     "group": "107",
     "day": "Wednesday",
     "time_from": "08:00",
-    "time_to": "10:00"
+    "time_to": "10:00",
+    "ESPB": "8"
   },
   {
     "subject": "Software Engineering",
@@ -15,7 +16,8 @@
     "group": "105",
     "day": "Thursday",
     "time_from": "14:30",
-    "time_to": "16:30"
+    "time_to": "16:30",
+    "ESPB": "7"
   },
   {
     "subject": "Web Programming",
@@ -24,7 +26,8 @@
     "group": "102",
     "day": "Thursday",
     "time_from": "15:30",
-    "time_to": "16:30"
+    "time_to": "16:30",
+    "ESPB": "3"
   },
   {
     "subject": "Software Engineering",
@@ -33,7 +36,8 @@
     "group": "107",
     "day": "Friday",
     "time_from": "09:00",
-    "time_to": "11:00"
+    "time_to": "11:00",
+    "ESPB": "5"
   },
   {
     "subject": "Operating Systems",
@@ -42,6 +46,7 @@
     "group": "109",
     "day": "Wednesday",
     "time_from": "11:00",
-    "time_to": "13:00"
+    "time_to": "13:00",
+    "ESPB": "6"
   }
 ]

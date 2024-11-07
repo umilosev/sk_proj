@@ -11,7 +11,7 @@ class ExcelReportImpl : ReportInterface {
     override val supportsFormatting: Boolean = true
 
     override fun generateReport(
-        data: Map<String, List<String>>,
+        data: Map<String, List<String?>>,
         destination: String,
         header: Boolean,
         title: String?,

@@ -19,25 +19,34 @@ class CalculationEngine {
     }
 
     // Funkcija za SUM - sabira sve numeričke vrednosti u zadatoj koloni
-    fun calculateSum(data: Map<String, List<Any?>>, columnName: String): Map<String, List<Any?>>? {
+    fun calculateSum(data: Map<String, List<String?>>, columnName: String): Map<String, List<String?>> {
         val columnData = data[columnName]
 
         if (columnData == null) {
             println("Greška: Kolona '$columnName' ne postoji.")
-            return null
+            return data
         }
 
-        if (!columnData.all { it is Number }) {
-            println("Greška: Kolona '$columnName' nije numerička i ne može se sumirati.")
-            return null
+        // Konvertovanje svih vrednosti u Double, filtracija nevalidnih vrednosti
+        val validNumbers = columnData.mapNotNull { it?.toDoubleOrNull() }
+
+        if (validNumbers.size != columnData.size) {
+            println("Greška: Neke vrednosti u koloni '$columnName' nisu validni brojevi.")
+            return data
         }
 
-        val sum = columnData.filterIsInstance<Number>().sumOf { it.toDouble() }
+        val sum = validNumbers.sum()
+
+        // Konvertovanje rezultata u string
+        val sumAsString = sum.toString()
+
+        // Ažuriranje podataka sa sumom kao string
         val updatedData = data.toMutableMap()
-        updatedData["${columnName}_Sum"] = listOf(sum) + List(columnData.size - 1) { null }
+        updatedData["${columnName}_Sum"] = listOf(sumAsString) + List(columnData.size - 1) { null }
 
         return updatedData
     }
+
 
     // Funkcija za AVERAGE - računa prosečnu vrednost numeričke kolone
     fun calculateAverage(data: Map<String, List<Any?>>, columnName: String): Map<String, List<Any?>>? {
@@ -45,12 +54,12 @@ class CalculationEngine {
 
         if (columnData == null) {
             println("Greška: Kolona '$columnName' ne postoji.")
-            return null
+            return data
         }
 
         if (!columnData.all { it is Number }) {
             println("Greška: Kolona '$columnName' nije numerička i ne može se koristiti za računanje proseka.")
-            return null
+            return data
         }
         // TODO :: NEMAMO AVERAGE JER LISTA BROJEVA IME DEFAULT-NU AVERAGE FUNKCIJU
         //      NEMOJ DA ZABORAVIS
@@ -59,5 +68,9 @@ class CalculationEngine {
         updatedData["${columnName}_Average"] = listOf(average) + List(columnData.size - 1) { null }
 
         return updatedData
+    }
+
+    fun isDouble(value: Any?): Boolean {
+        if(value is String) return value.toDoubleOrNull() != null else return false
     }
 }
