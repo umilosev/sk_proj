@@ -1,5 +1,7 @@
 plugins {
     kotlin("jvm")
+    `java-library`
+    `maven-publish`
 }
 
 group = "com.example"
@@ -10,7 +12,7 @@ repositories {
 }
 
 dependencies {
-    testImplementation(kotlin("test"))
+    testImplementation("org.jetbrains.kotlin:kotlin-test")
     implementation(project(":spec"))
 }
 
