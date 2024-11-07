@@ -16,6 +16,7 @@ dependencies {
     testImplementation(kotlin("test"))
     runtimeOnly(project(":excelImpl"))
     runtimeOnly(project(":csvImpl"))
+    runtimeOnly(project(":calcImpl"))
     runtimeOnly(project(":pdfImpl"))
     runtimeOnly(project(":textImpl"))
     implementation("org.apache.logging.log4j:log4j-core:2.24.1")

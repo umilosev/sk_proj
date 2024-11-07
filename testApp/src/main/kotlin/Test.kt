@@ -44,6 +44,7 @@ fun main() {
             service ->
         exporterServices[service.implName] = service
     }
+
     //TODO : aplikacija ce vrteti forever while i cekace unos, kada doceka unos recimo 0 onda ce da izadje,
     // a do tada cemo da ispisujemo tutorijal za koriscenje i pustiti korisnika da koristi program
 
@@ -57,7 +58,7 @@ fun main() {
 
         println(data)
 
-        exporterServices["XLS"]?.generateReport(data, "izlaz3.xlsx", true)
+        exporterServices["CSV"]?.generateReport(data, "csvreport.csv", true)
     //}
 
 }
