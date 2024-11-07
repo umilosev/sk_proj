@@ -19,7 +19,7 @@ class CalculationEngine {
     }
 
     // Funkcija za SUM - sabira sve numeričke vrednosti u zadatoj koloni
-    fun calculateSum(data: Map<String, List<String?>>, columnName: String): Map<String, List<String?>> {
+    fun calculateSum(data: Map<String, List<String>>, columnName: String): Map<String, List<String>> {
         val columnData = data[columnName]
 
         if (columnData == null) {
@@ -38,18 +38,18 @@ class CalculationEngine {
         val sum = validNumbers.sum()
 
         // Konvertovanje rezultata u string
-        val sumAsString = sum.toString()
+        val sumAsString = sum.toString() ?: return data
 
         // Ažuriranje podataka sa sumom kao string
         val updatedData = data.toMutableMap()
-        updatedData["${columnName}_Sum"] = listOf(sumAsString) + List(columnData.size - 1) { null }
+        updatedData["${columnName}_Sum"] = (listOf(sumAsString) + List(columnData.size - 1) { "" }) as List<String>
 
         return updatedData
     }
 
 
     // Funkcija za AVERAGE - računa prosečnu vrednost numeričke kolone
-    fun calculateAverage(data: Map<String, List<Any?>>, columnName: String): Map<String, List<Any?>>? {
+    fun calculateAverage(data: Map<String, List<String>>, columnName: String): Map<String, List<String>> {
         val columnData = data[columnName]
 
         if (columnData == null) {
@@ -57,15 +57,23 @@ class CalculationEngine {
             return data
         }
 
-        if (!columnData.all { it is Number }) {
-            println("Greška: Kolona '$columnName' nije numerička i ne može se koristiti za računanje proseka.")
+        // Konvertovanje svih vrednosti u Double, filtracija nevalidnih vrednosti
+        val validNumbers = columnData.mapNotNull { it?.toDoubleOrNull() }
+
+        if (validNumbers.size != columnData.size) {
+            println("Greška: Neke vrednosti u koloni '$columnName' nisu validni brojevi.")
             return data
         }
+
         // TODO :: NEMAMO AVERAGE JER LISTA BROJEVA IME DEFAULT-NU AVERAGE FUNKCIJU
         //      NEMOJ DA ZABORAVIS
-        val average = columnData.filterIsInstance<Number>()
+        val sum = validNumbers.sum()
+        val average = sum/validNumbers.size
+
+        val averageAsString = average.toString()
+
         val updatedData = data.toMutableMap()
-        updatedData["${columnName}_Average"] = listOf(average) + List(columnData.size - 1) { null }
+        updatedData["${columnName}_Average"] = (listOf(averageAsString) + List(columnData.size - 1) { "" }) as List<String>
 
         return updatedData
     }

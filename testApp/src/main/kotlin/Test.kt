@@ -65,13 +65,13 @@ fun main() {
 
         println(data)
 
-        val result = calcEngine.calculateSum(data, "ESPB")
+        val result = calcEngine.calculateAverage(data, "ESPB")
 
         println("Nakon kalkulacije")
 
         println(result)
 
-        exporterServices["CSV"]?.generateReport(result, "csvReport.csv", true)
+        exporterServices["TXT"]?.generateReport(result, "txtReport.txt", true)
     //}
 
 }
