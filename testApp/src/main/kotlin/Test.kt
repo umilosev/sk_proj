@@ -43,10 +43,9 @@ fun main() {
 
     val calcEngine = CalculationEngine()
 
-    val exporterServices = mutableMapOf<String, ReportInterface> ()
+    val exporterServices = mutableMapOf<String, ReportInterface>()
 
-    serviceLoader.forEach{
-            service ->
+    serviceLoader.forEach { service ->
         exporterServices[service.implName] = service
     }
 
@@ -54,24 +53,29 @@ fun main() {
     // a do tada cemo da ispisujemo tutorijal za koriscenje i pustiti korisnika da koristi program
 
     //while(true){
-        println("Exporters: " + exporterServices.keys + " - " + serviceLoader.count())
+    println("Exporters: " + exporterServices.keys + " - " + serviceLoader.count())
 
-        val inputStream = object {}.javaClass.getResourceAsStream("/data.json")
-        val reader = InputStreamReader(inputStream)
-        var data = prepareData(reader)
-        reader.close()
+    val inputStream = object {}.javaClass.getResourceAsStream("/data.json")
+    val reader = InputStreamReader(inputStream)
+    var data = prepareData(reader)
+    reader.close()
 
-        println("Pre kalkulacije")
+    println("Pre kalkulacije")
 
-        println(data)
+    println(data)
 
-        data = calcEngine.calculateAverage(data, "ESPB")
+    data = calcEngine.calculateAverage(data, "ESPB")
+    data = calcEngine.calculateAverage(data, "year")
+    data = calcEngine.calculateAverage(data, "group")
+    data = calcEngine.calculateCount(data, "group")
+    data = calcEngine.calculateAverage(data, "ESPB")
+    data = calcEngine.calculateSum(data, "ESPB")
 
-        println("Nakon kalkulacije")
+    println("Nakon kalkulacije")
 
-        println(data)
+    println(data)
 
-        exporterServices["XLS"]?.generateReport(data, "excelReport.xlsx", true)
+    exporterServices["XLS"]?.generateReport(data, "excelReport.xlsx", true)
     //}
 
 }
