@@ -4,6 +4,7 @@ import calc.CalculationEngine
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import spec.ReportInterface
+import java.io.InputStream
 import java.io.InputStreamReader
 import java.util.*
 
@@ -60,6 +61,15 @@ fun main() {
     var data = prepareData(reader)
     reader.close()
 
+    val userReader = System.`in`.bufferedReader()
+    println("Unesite ime kolone")
+    val kolona = userReader.readLine().toString()
+    println("Vece ili manje?")
+    val vm = userReader.readLine().toString()
+    var veceManje : Int = 0
+    veceManje = if(vm.contains("vece")) 1 else -1
+    println("Po kom broju zelite da prebrojite")
+    val kondicional=userReader.readLine().toString()
     println("Pre kalkulacije")
 
     println(data)
@@ -67,7 +77,11 @@ fun main() {
     data = calcEngine.calculateAverage(data, "ESPB")
     data = calcEngine.calculateAverage(data, "year")
     data = calcEngine.calculateAverage(data, "group")
-    data = calcEngine.calculateCount(data, "group")
+    if(veceManje==1){
+        data = calcEngine.calculateCount(data, kolona, veceManje, condition = {element -> (element.toDouble() > kondicional.toDouble())})
+    }
+    else data = calcEngine.calculateCount(data, kolona, veceManje, condition = {element -> (element.toDouble() < kondicional.toDouble())})
+
     data = calcEngine.calculateAverage(data, "ESPB")
     data = calcEngine.calculateSum(data, "ESPB")
 
