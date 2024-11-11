@@ -50,4 +50,5 @@ interface ReportInterface {
 
         return reportData
     }
+
 }
