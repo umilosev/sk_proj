@@ -4,6 +4,7 @@ import calc.CalculationEngine
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import spec.ReportInterface
+import java.io.InputStream
 import java.io.InputStreamReader
 import java.util.*
 
@@ -43,10 +44,9 @@ fun main() {
 
     val calcEngine = CalculationEngine()
 
-    val exporterServices = mutableMapOf<String, ReportInterface> ()
+    val exporterServices = mutableMapOf<String, ReportInterface>()
 
-    serviceLoader.forEach{
-            service ->
+    serviceLoader.forEach { service ->
         exporterServices[service.implName] = service
     }
 
@@ -54,24 +54,42 @@ fun main() {
     // a do tada cemo da ispisujemo tutorijal za koriscenje i pustiti korisnika da koristi program
 
     //while(true){
-        println("Exporters: " + exporterServices.keys + " - " + serviceLoader.count())
+    println("Exporters: " + exporterServices.keys + " - " + serviceLoader.count())
 
-        val inputStream = object {}.javaClass.getResourceAsStream("/data.json")
-        val reader = InputStreamReader(inputStream)
-        var data = prepareData(reader)
-        reader.close()
+    val inputStream = object {}.javaClass.getResourceAsStream("/data.json")
+    val reader = InputStreamReader(inputStream)
+    var data = prepareData(reader)
+    reader.close()
 
-        println("Pre kalkulacije")
+    val userReader = System.`in`.bufferedReader()
+    println("Unesite ime kolone")
+    val kolona = userReader.readLine().toString()
+    println("Vece ili manje?")
+    val vm = userReader.readLine().toString()
+    var veceManje : Int = 0
+    veceManje = if(vm.contains("vece")) 1 else -1
+    println("Po kom broju zelite da prebrojite")
+    val kondicional=userReader.readLine().toString()
+    println("Pre kalkulacije")
 
-        println(data)
+    println(data)
 
-        data = calcEngine.calculateAverage(data, "ESPB")
+    data = calcEngine.calculateAverage(data, "ESPB")
+    data = calcEngine.calculateAverage(data, "year")
+    data = calcEngine.calculateAverage(data, "group")
+    if(veceManje==1){
+        data = calcEngine.calculateCount(data, kolona, veceManje, condition = {element -> (element.toDouble() > kondicional.toDouble())})
+    }
+    else data = calcEngine.calculateCount(data, kolona, veceManje, condition = {element -> (element.toDouble() < kondicional.toDouble())})
 
-        println("Nakon kalkulacije")
+    data = calcEngine.calculateAverage(data, "ESPB")
+    data = calcEngine.calculateSum(data, "ESPB")
 
-        println(data)
+    println("Nakon kalkulacije")
 
-        exporterServices["XLS"]?.generateReport(data, "excelReport.xlsx", true)
+    println(data)
+
+    exporterServices["XLS"]?.generateReport(data, "excelReport.xlsx", true)
     //}
 
 }

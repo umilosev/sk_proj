@@ -9,7 +9,7 @@ class CsvReportImpl : ReportInterface {
     override val supportsFormatting: Boolean = false
 
     override fun generateReport(
-        data: Map<String, List<String?>>,
+        data: Map<String, List<String>>,
         destination: String,
         header: Boolean,
         title: String?,
