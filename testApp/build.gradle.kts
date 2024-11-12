@@ -40,6 +40,14 @@ tasks.shadowJar {
     mergeServiceFiles()  // Includes meta-inf service files
 }
 
+tasks.named<JavaExec>("run") {
+    standardInput = System.`in`
+}
+
+tasks.named<JavaExec>("runShadow") {
+    standardInput = System.`in`
+}
+
 // Ensure the shadow JAR is built as part of the build process
 tasks.build {
     dependsOn(tasks.shadowJar)
