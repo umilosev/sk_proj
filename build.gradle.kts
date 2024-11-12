@@ -5,6 +5,26 @@ plugins {
 group = "com.example"
 version = "1.0-SNAPSHOT"
 
+
+allprojects{
+    repositories{
+        mavenCentral()
+        mavenLocal()
+    }
+}
+
+subprojects {
+    apply(plugin = "org.jetbrains.kotlin.jvm")
+
+    dependencies {
+        testImplementation(kotlin("test"))
+    }
+
+    tasks.withType<Test> {
+        useJUnitPlatform()
+    }
+}
+
 repositories {
     mavenCentral()
 }
