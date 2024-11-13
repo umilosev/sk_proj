@@ -153,8 +153,12 @@ fun main() {
                             1 -> {
                                 println("Koju rec trazite")
                                 val kondicional = userReader.readLine().toString()
-                                if(kondicional.equals("-1"))
+                                if(kondicional.equals("-1")){
+                                    println("Uspesno ste ponistili akciju")
+                                    continue
+                                }
                                 data = calcEngine.calculateCount(data, kolona, 0, condition = {element -> element.contains(kondicional)})
+                                printData(data)
                             }
                             2 -> {
                                 println("Unesite broj po kojem poredimo")
@@ -172,8 +176,12 @@ fun main() {
                                 val veceManje = if(vm.contains("vece")) 1 else -1
                                 if(veceManje==1){
                                     data = calcEngine.calculateCount(data, kolona, veceManje, condition = {element -> (element.toDouble() > kondicional.toDouble())})
+                                    printData(data)
                                 }
-                                else data = calcEngine.calculateCount(data, kolona, veceManje, condition = {element -> (element.toDouble() < kondicional.toDouble())})
+                                else {
+                                    data = calcEngine.calculateCount(data, kolona, veceManje, condition = {element -> (element.toDouble() < kondicional.toDouble())})
+                                    printData(data)
+                                }
                             }
                         }
                     }
