@@ -84,11 +84,8 @@ fun main() {
     }
 
     val options = exporterServices.keys.toList()
-    //TODO : aplikacija ce vrteti forever while i cekace unos, kada doceka unos recimo 0 onda ce da izadje,
-    // a do tada cemo da ispisujemo tutorijal za koriscenje i pustiti korisnika da koristi program
 
-
-    println("Exporters: " + exporterServices.keys + " - " + serviceLoader.count())
+//    println("Exporters: " + exporterServices.keys + " - " + serviceLoader.count())
 
     val inputStream = object {}.javaClass.getResourceAsStream("/data.json")
     val reader = InputStreamReader(inputStream)
@@ -102,29 +99,32 @@ fun main() {
             "5. Tutorijal\n" +
             "6. Ispis tabele\n" +
             "-1. Nazad/Prekid radu\n"
+
     val userReader = System.`in`.bufferedReader()
     println("\nDobro dosli, izvolite tutorijal za koriscenje programa\n" + tutorial)
     var eksporter =-1
     while(true) {
-        println("\nIzaberite sta zelite da uradite\n")
+        println("\nIzaberite sta zelite da uradite, 5 za pomoc\n")
         var unos = System.`in`.bufferedReader().readLine().toString()
 
         when (unos) {
             "1" -> {
-                println(
-                    "Izaberite eksporter:\n" +
-                            "1.Excel\n" +
-                            "2.CSV\n" +
-                            "3.PDF\n" +
-                            "4.TXT\n"
-                )
+                var i = 1
+                println("\nIzaberite eksporter:\n")
+                for((eksporterServis) in exporterServices.entries){
+                    println("$i.$eksporterServis")
+                    i+=1
+                }
                 eksporter = userReader.readLine().toInt()-1
-                if(eksporter == -1) continue
-                println("Eksporter "+options[eksporter]+" izabran!")
+                if(eksporter == -1) {
+                    println("Uspesno ste prekinuli akciju")
+                    continue
+                }
+                println("\nEksporter "+options[eksporter]+" izabran!\n")
             }
 
             "2" -> {
-                println("Biranje formata")
+                println("\nBiranje formata\n")
             }
 
             "3" -> {
@@ -132,29 +132,29 @@ fun main() {
                         "1.Count\n" +
                         "2.Sum\n" +
                         "3.Average\n" +
-                        "-1. Nazad")
+                        "-1. Nazad\n")
                 when(userReader.readLine().toInt()){
                     1->{
                         println("Sta zelite da prebrojavate?\n" +
                                 "1. Reci\n" +
-                                "2. Brojeve")
+                                "2. Brojeve\n")
                         val metoda = userReader.readLine().toInt()
                         if(metoda == -1) {
-                            println("Uspesno ste ponistili akciju")
+                            println("\nUspesno ste ponistili akciju\n")
                             continue
                         }
-                        println("Unesite ime kolone")
+                        println("\nUnesite ime kolone\n")
                         val kolona = userReader.readLine().toString()
                         if(kolona.equals("-1")) {
-                            println("Uspesno ste ponistili akciju")
+                            println("\nUspesno ste ponistili akciju\n")
                             continue
                         }
                         when(metoda){
                             1 -> {
-                                println("Koju rec trazite")
+                                println("\nKoju rec trazite\n")
                                 val kondicional = userReader.readLine().toString()
                                 if(kondicional.equals("-1")){
-                                    println("Uspesno ste ponistili akciju")
+                                    println("\nUspesno ste ponistili akciju\n")
                                     continue
                                 }
                                 data = calcEngine.calculateCount(data, kolona, 0, condition = {element -> element.contains(kondicional)})
@@ -164,13 +164,13 @@ fun main() {
                                 println("Unesite broj po kojem poredimo")
                                 val kondicional = userReader.readLine().toString()
                                 if(kolona == "-1") {
-                                    println("Uspesno ste ponistili akciju")
+                                    println("\nUspesno ste ponistili akciju\n")
                                     continue
                                 }
-                                println("Da li prebrojavamo vece/manje brojeve od unetog broja? "+kondicional)
+                                println("\nDa li prebrojavamo vece/manje brojeve od unetog broja? "+kondicional)
                                 val vm = userReader.readLine().toString()
                                 if(vm == "-1") {
-                                    println("Uspesno ste ponistili akciju")
+                                    println("\nUspesno ste ponistili akciju\n")
                                     continue
                                 }
                                 val veceManje = if(vm.contains("vece")) 1 else -1
@@ -189,7 +189,7 @@ fun main() {
                         println("Unesite ime kolone")
                         val kolona = userReader.readLine().toString()
                         if(kolona == "-1") {
-                            println("Uspesno ste ponistili akciju")
+                            println("\nUspesno ste ponistili akciju\n")
                             continue
                         }
                         data = calcEngine.calculateSum(data, kolona)
@@ -198,7 +198,7 @@ fun main() {
                         println("Unesite ime kolone")
                         val kolona = userReader.readLine().toString()
                         if(kolona == "-1") {
-                            println("Uspesno ste ponistili akciju")
+                            println("\nUspesno ste ponistili akciju\n")
                             continue
                         }
                         data = calcEngine.calculateAverage(data, kolona)
@@ -219,12 +219,14 @@ fun main() {
                             "CSV -> .csv\n" +
                             "TXT -> .txt"
                 )
+                println("\nVi ste odabrali "+options[eksporter]+"\n")
                 var destinacija = userReader.readLine().toString()
                 if (destinacija.equals("-1")) {
                     println("\nUspesno ste ponistili akciju")
                     continue
                 }
                 exporterServices[options[eksporter]]?.generateReport(data, destinacija, true)
+                println("\nUspesno ste ispisali izvestaj sa "+options[eksporter]+" eksporterom\n")
             }
 
             "5" -> {
