@@ -77,14 +77,12 @@ class ExcelReportImpl : ReportInterface {
             summaryCell.setCellValue("Summary: $it")
         }
 
-        println("It should be writing?")
 
         // Write to the destination file
         FileOutputStream(destination).use { outputStream ->
             workbook.write(outputStream)
         }
 
-        println("It should have written?")
 
         // Closing the workbook
         workbook.close()
