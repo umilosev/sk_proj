@@ -78,6 +78,17 @@ class ExcelReportImpl : ReportInterface {
         workbook.close()
     }
 
+    override fun generateReportWithFormatting(
+        data: Map<String, List<String>>,
+        destination: String,
+        header: Boolean,
+        title: String?,
+        summary: String?,
+        config: FormattingConfig
+    ) {
+        TODO("Not yet implemented")
+    }
+
     private fun populateCalculationRow(
         sheet: Sheet,
         data: Map<String, List<String>>,

@@ -3,8 +3,8 @@ package testApp
 import calc.CalculationEngine
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import formatting.FormattingConfig
 import spec.ReportInterface
-import java.io.InputStream
 import java.io.InputStreamReader
 import java.util.*
 
@@ -85,6 +85,13 @@ fun main() {
 
     val options = exporterServices.keys.toList()
 
+    // Postavi podrazumevane vrednosti za FormattingConfig
+    val formattingConfig = FormattingConfig(
+        titleFontSize = 16, // podrazumevana veličina fonta za naslov
+        columnHeaderFontSize = 12, // podrazumevana veličina fonta za zaglavlja kolona
+        dataFontSize = 10 // podrazumevana veličina fonta za podatke
+    )
+
     val inputStream = object {}.javaClass.getResourceAsStream("/data.json")
     val reader = InputStreamReader(inputStream)
     var data = prepareData(reader)
@@ -119,12 +126,36 @@ fun main() {
                 }
                 println("\nEksporter "+options[eksporter]+" izabran!\n")
             }
-
+            //TODO moramo da odradimo mogucnosti za formatiranje u test aplikaciji i onda smo gotovi sa ovim projektom
             "2" -> {
-                println("\nBiranje formata\n")
-                //ovde bismo pozvali, tipa reportInterface, i rekli, okej pozovemo to i onda unutar reportInterface-a
-                //mi pravimo taj konfig fajl, i zovemo ga
-                //
+                while (true) {
+                    println("\nBiranje formata\n")
+                    println("1. Set title font size (current: ${formattingConfig.titleFontSize})")
+                    println("2. Set column header font size (current: ${formattingConfig.columnHeaderFontSize})")
+                    println("3. Set data font size (current: ${formattingConfig.dataFontSize})")
+                    println("4. Exit")
+
+                    print("Enter option: ")
+                    when (userReader.readLine().toString()) {
+                        "1" -> {
+                            print("Enter title font size: ")
+                            formattingConfig.titleFontSize = readLine()?.toIntOrNull() ?: formattingConfig.titleFontSize
+                        }
+                        "2" -> {
+                            print("Enter column header font size: ")
+                            formattingConfig.columnHeaderFontSize = readLine()?.toIntOrNull() ?: formattingConfig.columnHeaderFontSize
+                        }
+                        "3" -> {
+                            print("Enter data font size: ")
+                            formattingConfig.dataFontSize = readLine()?.toIntOrNull() ?: formattingConfig.dataFontSize
+                        }
+                        "4" -> {
+                            println("Exiting...")
+                            break
+                        }
+                        else -> println("Invalid option. Please try again.")
+                    }
+                }
             }
 
             "3" -> {
@@ -225,7 +256,11 @@ fun main() {
                     println("\nUspesno ste ponistili akciju")
                     continue
                 }
-                exporterServices[options[eksporter]]?.generateReport(data, destinacija, true)
+
+                if(options[eksporter].equals("XLS")||options[eksporter].equals("PDF")) {
+                    exporterServices[options[eksporter]]?.generateReportWithFormatting(data, destinacija,true,"Izvestaj","Summary",formattingConfig)
+                }
+                else exporterServices[options[eksporter]]?.generateReport(data, destinacija, true)
                 println("\nUspesno ste ispisali izvestaj sa "+options[eksporter]+" eksporterom\n")
             }
 
