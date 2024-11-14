@@ -1,5 +1,6 @@
 package csv
 
+import formatting.FormattingConfig
 import spec.ReportInterface
 import java.io.File
 import java.io.PrintWriter
@@ -8,6 +9,10 @@ class CsvReportImpl : ReportInterface {
 
     override val implName: String = "CSV"
     override val supportsFormatting: Boolean = false
+
+    override fun applyFormatting(config: FormattingConfig) {
+        //nema potrebe za implementacijom jer ga necemo koristiti
+    }
 
     override fun generateReport(
         data: Map<String, List<String>>,

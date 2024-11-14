@@ -1,5 +1,6 @@
 package spec
 
+import formatting.FormattingConfig
 import java.sql.ResultSet
 import java.sql.ResultSetMetaData
 /**
@@ -22,6 +23,13 @@ interface ReportInterface {
      * @param title An optional title for the report, used only in the formatted reports.
      * @param summary An optional summary for the report, used only in the formatted reports.
      */
+
+    /**
+     * Sets up formatting configuration to be used during report generation.
+     * Implementations can choose to ignore it if `supportsFormatting` is false.
+     */
+    fun applyFormatting(config: FormattingConfig)
+
     fun generateReport(data: Map<String, List<String>>, destination: String, header: Boolean, title: String? = null, summary: String? = null)
 
 

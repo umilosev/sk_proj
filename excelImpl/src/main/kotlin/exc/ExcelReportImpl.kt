@@ -1,6 +1,7 @@
 package exc
 
 
+import formatting.FormattingConfig
 import org.apache.poi.ss.usermodel.*
 import org.apache.poi.ss.util.CellRangeAddress
 import org.apache.poi.xssf.usermodel.XSSFWorkbook
@@ -10,6 +11,9 @@ import java.io.FileOutputStream
 class ExcelReportImpl : ReportInterface {
     override val implName: String = "XLS"
     override val supportsFormatting: Boolean = true
+    override fun applyFormatting(config: FormattingConfig) {
+        TODO("isto kao za PDF nekako cemo ga gurnuti i menjati celije")
+    }
 
 
     override fun generateReport(

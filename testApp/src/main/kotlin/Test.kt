@@ -122,6 +122,9 @@ fun main() {
 
             "2" -> {
                 println("\nBiranje formata\n")
+                //ovde bismo pozvali, tipa reportInterface, i rekli, okej pozovemo to i onda unutar reportInterface-a
+                //mi pravimo taj konfig fajl, i zovemo ga
+                //
             }
 
             "3" -> {

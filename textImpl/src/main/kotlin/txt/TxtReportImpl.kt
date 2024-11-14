@@ -1,5 +1,6 @@
 package txt
 
+import formatting.FormattingConfig
 import spec.ReportInterface
 import java.io.File
 import java.io.PrintWriter
@@ -8,6 +9,9 @@ class TxtReportImpl : ReportInterface {
 
     override val implName: String = "TXT"
     override val supportsFormatting: Boolean = false
+    override fun applyFormatting(config: FormattingConfig) {
+        //Tekst ne koristi formatiranje tako da se ovo ne implementira
+    }
 
 
     override fun generateReport(
