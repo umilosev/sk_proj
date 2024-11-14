@@ -60,15 +60,15 @@ class ExcelReportImpl : ReportInterface {
             }
         }
 
-        val avgRows = populateSummaryRow(sheet, data, numRows + 4, "Average")
-        val sumRows = populateSummaryRow(sheet, data, numRows + 4 + avgRows + 1, "Sum")
-        val countRows = populateSummaryRow(sheet, data, numRows + 4 + avgRows + 1 + sumRows + 1, "Count")
-
         summary?.let {
             val summaryRow: Row = sheet.createRow(numRows + 2)
             val summaryCell: Cell = summaryRow.createCell(0)
             summaryCell.setCellValue("Summary: $it")
         }
+
+        val avgRows = populateSummaryRow(sheet, data, numRows + 4, "Average")
+        val sumRows = populateSummaryRow(sheet, data, numRows + 4 + avgRows + 1, "Sum")
+        val countRows = populateSummaryRow(sheet, data, numRows + 4 + avgRows + 1 + sumRows + 1, "Count")
 
         FileOutputStream(destination).use { outputStream -> workbook.write(outputStream) }
         workbook.close()
