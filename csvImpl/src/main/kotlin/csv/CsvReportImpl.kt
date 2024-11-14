@@ -33,32 +33,29 @@ class CsvReportImpl : ReportInterface {
                 val row = columns.map { column -> data[column]?.get(i) ?: "" }
                 writer.println(row.joinToString(","))   // Write each row
             }
-        }
 
-        // calculation exporting
-        pw.use {
-            writer ->
-            populateSummaryRow(writer, data,  "Average")
-            populateSummaryRow(writer, data,  "Sum")
-            populateSummaryRow(writer, data, "Count")
+            populateCalculationRow(writer, data,  "Average")
+            populateCalculationRow(writer, data,  "Sum")
+            populateCalculationRow(writer, data, "Count")
         }
     }
 
-    private fun populateSummaryRow(
+    private fun populateCalculationRow(
         writer: PrintWriter,
         data: Map<String, List<String>>,
         columnSuffix: String
     ) {
-        val summaryCols = data.keys.filter { x -> x.contains("_$columnSuffix") }
-        if (summaryCols.isEmpty()) return
+        val summaryColumnsNames = data.keys.filter { x -> x.contains("_$columnSuffix") }
+            .map { x -> x.removeSuffix("_$columnSuffix")}
+        if (summaryColumnsNames.isEmpty()) return
 
-        println()
-        println()
+        writer.println()
+        writer.println()
 
-        writer.println("Column Name, $columnSuffix")
+        writer.println("Column Name,$columnSuffix")
 
-        summaryCols.forEach { colName ->
-            writer.println("$colName, " + (data[colName]?.get(0) ?: " N/A"))
+        summaryColumnsNames.forEach { colName ->
+            writer.println("$colName," + (data[colName]?.get(0) ?: "N/A"))
         }
     }
 }

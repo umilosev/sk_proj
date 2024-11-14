@@ -85,13 +85,10 @@ fun main() {
 
     val options = exporterServices.keys.toList()
 
-//    println("Exporters: " + exporterServices.keys + " - " + serviceLoader.count())
-
     val inputStream = object {}.javaClass.getResourceAsStream("/data.json")
     val reader = InputStreamReader(inputStream)
     var data = prepareData(reader)
     reader.close()
-
     val tutorial =             "\n1. Biranje eksportera\n" +
             "2. Formatiranje izvestaja(dostupno samo PDF i Excel exporter-u)\n" +
             "3. Odradjivanje kalkulacija\n" +
@@ -270,4 +267,26 @@ fun main() {
 //    exporterServices["XLS"]?.generateReport(data, "excelReport.xlsx", true)
 
 
+}
+
+private fun testAppInstant(
+    data: Map<String, List<String>>,
+    calcEngine: CalculationEngine,
+    exporterServices: Map<String, ReportInterface>
+)
+{
+    var myData = data
+
+    myData = calcEngine.calculateAverage(myData, "ESPB")
+    myData = calcEngine.calculateAverage(myData, "year")
+    myData = calcEngine.calculateAverage(myData, "group")
+    myData = calcEngine.calculateSum(myData, "ESPB")
+    myData = calcEngine.calculateCount(myData, "ESPB")
+    myData = calcEngine.calculateCount(myData, "group")
+
+    exporterServices["TXT"]?.generateReport(myData, "reported.txt", true)
+    exporterServices["CSV"]?.generateReport(myData, "reported.csv", true)
+    exporterServices["XLS"]?.generateReport(myData, "reported.xlsx", true)
+
+    Thread.sleep(99999999999)
 }

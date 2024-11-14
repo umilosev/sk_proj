@@ -66,22 +66,23 @@ class ExcelReportImpl : ReportInterface {
             summaryCell.setCellValue("Summary: $it")
         }
 
-        val avgRows = populateSummaryRow(sheet, data, numRows + 4, "Average")
-        val sumRows = populateSummaryRow(sheet, data, numRows + 4 + avgRows + 1, "Sum")
-        val countRows = populateSummaryRow(sheet, data, numRows + 4 + avgRows + 1 + sumRows + 1, "Count")
+        val avgRows = populateCalculationRow(sheet, data, numRows + 4, "Average")
+        val sumRows = populateCalculationRow(sheet, data, numRows + 4 + avgRows + 1, "Sum")
+        val countRows = populateCalculationRow(sheet, data, numRows + 4 + avgRows + 1 + sumRows + 1, "Count")
 
         FileOutputStream(destination).use { outputStream -> workbook.write(outputStream) }
         workbook.close()
     }
 
-    private fun populateSummaryRow(
+    private fun populateCalculationRow(
         sheet: Sheet,
         data: Map<String, List<String>>,
         startRow: Int,
         columnSuffix: String
     ): Int {
-        val summaryCols = data.keys.filter { x -> x.contains("_$columnSuffix") }
-        if(summaryCols.isEmpty()) return 0
+        val summaryColumnsNames = data.keys.filter { x -> x.contains("_$columnSuffix") }
+            .map { x -> x.removeSuffix("_$columnSuffix")}
+        if(summaryColumnsNames.isEmpty()) return 0
 
         val rowOffset = startRow + 2
 
@@ -89,14 +90,13 @@ class ExcelReportImpl : ReportInterface {
         headerRow.createCell(0).setCellValue("Column Name")
         headerRow.createCell(1).setCellValue(columnSuffix)
 
-        summaryCols.forEachIndexed { ind, colName ->
+        summaryColumnsNames.forEachIndexed { ind, colName ->
             val row = sheet.createRow(rowOffset + 1 + ind)
-            val cleanColName = colName.removeSuffix(columnSuffix)
 
             row.createCell(0).setCellValue(colName)
             row.createCell(1).setCellValue(data[colName]?.get(0) ?: " N/A ")
         }
 
-        return summaryCols.size + 1
+        return summaryColumnsNames.size + 1
     }
 }

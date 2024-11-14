@@ -22,8 +22,7 @@ class TxtReportImpl : ReportInterface {
                     && !x.contains("Count")
         }
 
-        // Calculate the max width for each column
-        val columnWidths = data.keys.map { column ->
+        val columnWidths = keysWithoutCalcs.map { column ->
             val maxDataWidth = data[column]?.maxOfOrNull { it.length } ?: 0
             maxOf(column.length, maxDataWidth)
         }
@@ -42,7 +41,7 @@ class TxtReportImpl : ReportInterface {
             }
 
             // Write the header row
-            columns.forEachIndexed { index, column ->
+            keysWithoutCalcs.forEachIndexed { index, column ->
                 writer.print(column.padEnd(columnWidths[index] + 2))  // +2 for spacing
             }
             writer.println()
@@ -55,7 +54,7 @@ class TxtReportImpl : ReportInterface {
 
             // Write each row of data, properly spaced
             for (i in 0 until numRows) {
-                columns.forEachIndexed { index, column ->
+                keysWithoutCalcs.forEachIndexed { index, column ->
                     val cell = data[column]?.get(i) ?: ""
                     writer.print(cell.padEnd(columnWidths[index] + 2))  // +2 for spacing
                 }
@@ -67,57 +66,58 @@ class TxtReportImpl : ReportInterface {
                 writer.println()
                 writer.println(it)
             }
+
+            populateCalculationRow(writer, data,  "Average")
+            populateCalculationRow(writer, data,  "Sum")
+            populateCalculationRow(writer, data, "Count")
         }
 
-//        // calculation exporting
-//        pw.use { writer ->
-//            populateSummaryRow(writer, data,  "Average")
-//            populateSummaryRow(writer, data,  "Sum")
-//            populateSummaryRow(writer, data, "Count")
-//        }
+        // calculation exporting
+        pw.use { writer ->
+
+        }
     }
 
-    private fun populateSummaryRow(
+    private fun populateCalculationRow(
         writer: PrintWriter,
         data: Map<String, List<String>>,
         columnSuffix: String,
-        columnWidth: Int
     ) {
-        val summaryCols = data.keys.filter { x -> x.contains("_$columnSuffix") }
-        if (summaryCols.isEmpty()) return
+        val summaryColumnsNames = data.keys.filter { x -> x.contains("_$columnSuffix") }
+            .map { x -> x.removeSuffix("_$columnSuffix")}
+        if (summaryColumnsNames.isEmpty()) return
 
-        println()
-        println()
+        val summaryColumnValues = summaryColumnsNames.map { name ->
+            data[name]?.get(0) ?: " N/A "
+        }
 
-        // Write the header row
+        writer.println()
+        writer.println()
+
         val c1 = "Column Name"
         val c2 = columnSuffix
 
-        val columnWidths = summaryCols.map { column ->
-            val maxDataWidth = data[column]?.maxOfOrNull { it.length } ?: 0
-            maxOf(column.length, maxDataWidth)
-        }
-        writer.println()
+        val columnWidths : Array<Int> = Array<Int>(2) { 0 }
+        columnWidths[0] = c1.length
+        columnWidths[1] = c2.length
 
-        columnWidths.forEach { width ->
-            writer.print("-".repeat(width + 2))  // +2 for spacing
+        summaryColumnsNames.forEach {name ->
+            columnWidths[0] = maxOf(name.length, columnWidths[0])
         }
-        writer.println()
+
+        summaryColumnValues.forEach {value ->
+            columnWidths[0] = maxOf(value.length, columnWidths[0])
+        }
 
         writer.print(c1.padEnd(columnWidths[0] + 2))  // +2 for spacing
         writer.print(c2.padEnd(columnWidths[1] + 2))  // +2 for spacing
+        writer.println()
         writer.print("-".repeat(columnWidths[0] + columnWidths[1] + 4))  // +2 for spacing
-
-        columnWidths.forEach { width ->
-        }
         writer.println()
 
-
-        for (i in summaryCols.indices) {
-            summaryCols.forEachIndexed { index, column ->
-                val cell = data[column]?.get(i) ?: ""
-                writer.print(cell.padEnd(columnWidths[index] + 2))  // +2 for spacing
-            }
+        summaryColumnsNames.forEachIndexed { ind, col ->
+            writer.print(col.padEnd(columnWidths[0] + 2))  // +2 for spacing
+            writer.print(summaryColumnValues[ind].padEnd(columnWidths[1] + 2))  // +2 for spacing
             writer.println()
         }
     }
