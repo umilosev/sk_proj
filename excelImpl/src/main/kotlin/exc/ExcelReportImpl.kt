@@ -5,7 +5,6 @@ import formatting.FormatOptions
 import formatting.FormattingConfig
 import org.apache.poi.ss.usermodel.*
 import org.apache.poi.ss.util.CellRangeAddress
-import org.apache.poi.xssf.usermodel.XSSFColor
 import org.apache.poi.xssf.usermodel.XSSFWorkbook
 import spec.ReportInterface
 import java.io.FileOutputStream
@@ -109,10 +108,14 @@ class ExcelReportImpl : ReportInterface {
             titleCell.cellStyle = titleStyle
         }
 
+        val keysWithoutCalcs = data.keys.filter { x ->
+            !x.contains("_Average") && !x.contains("_Sum") && !x.contains("Count")
+        }
+
         // Apply header formatting
         if (header) {
             val headerRow: Row = sheet.createRow(1)
-            data.keys.forEachIndexed { index, columnName ->
+            keysWithoutCalcs.forEachIndexed { index, columnName ->
                 val headerCell = headerRow.createCell(index)
                 headerCell.setCellValue(columnName)
 
@@ -125,7 +128,7 @@ class ExcelReportImpl : ReportInterface {
         val numRows = data.values.first().size
         for (i in 0 until numRows) {
             val dataRow: Row = sheet.createRow(if (header) i + 2 else i + 1)
-            data.keys.forEachIndexed { index, columnName ->
+            keysWithoutCalcs.forEachIndexed { index, columnName ->
                 val cell = dataRow.createCell(index)
                 cell.setCellValue(data[columnName]?.get(i) ?: "")
 
@@ -139,6 +142,13 @@ class ExcelReportImpl : ReportInterface {
             val summaryCell: Cell = summaryRow.createCell(0)
             summaryCell.setCellValue("Summary: $it")
         }
+
+        val avgRows = populateCalculationRowFormatted(workbook, sheet, data, numRows + 4
+            , "Average", config)
+        val sumRows = populateCalculationRowFormatted(workbook, sheet, data, numRows + 4 + avgRows + 1
+            , "Sum", config)
+        val countRows = populateCalculationRowFormatted(workbook, sheet, data, numRows + 4 + avgRows + 1 + sumRows + 1
+            , "Count", config)
 
         FileOutputStream(destination).use { outputStream -> workbook.write(outputStream) }
         workbook.close()
@@ -182,8 +192,8 @@ class ExcelReportImpl : ReportInterface {
         columnSuffix: String
     ): Int {
         val summaryColumnsNames = data.keys.filter { x -> x.contains("_$columnSuffix") }
-            .map { x -> x.removeSuffix("_$columnSuffix")}
-        if(summaryColumnsNames.isEmpty()) return 0
+            .map { x -> x.removeSuffix("_$columnSuffix") }
+        if (summaryColumnsNames.isEmpty()) return 0
 
         val rowOffset = startRow + 2
 
@@ -196,6 +206,47 @@ class ExcelReportImpl : ReportInterface {
 
             row.createCell(0).setCellValue(colName)
             row.createCell(1).setCellValue(data[colName]?.get(0) ?: " N/A ")
+        }
+
+        return summaryColumnsNames.size + 1
+    }
+
+    // data style from original column, header style for specific calculation
+    private fun populateCalculationRowFormatted(
+        workbook: Workbook,
+        sheet: Sheet,
+        data: Map<String, List<String>>,
+        startRow: Int,
+        columnSuffix: String,
+        config: FormattingConfig
+    ): Int {
+        val summaryColumnsNames = data.keys.filter { it.contains("_$columnSuffix") }
+            .map { it.removeSuffix("_$columnSuffix") }
+        if (summaryColumnsNames.isEmpty()) return 0
+
+        val rowOffset = startRow + 2
+        val headerRow = sheet.createRow(rowOffset)
+
+        val headerStyle = createCellStyle(workbook, config.getHeaderFormat(columnSuffix))
+        headerRow.createCell(0).apply {
+            setCellValue("Column Name")
+            cellStyle = headerStyle
+        }
+        headerRow.createCell(1).apply {
+            setCellValue(columnSuffix)
+            cellStyle = headerStyle
+        }
+
+        summaryColumnsNames.forEachIndexed { ind, colName ->
+            val row = sheet.createRow(rowOffset + 1 + ind)
+            row.createCell(0).apply {
+                setCellValue(colName)
+                cellStyle = createCellStyle(workbook, config.getColumnFormat(colName))
+            }
+            row.createCell(1).apply {
+                setCellValue(data[colName]?.get(0) ?: " N/A ")
+                cellStyle = createCellStyle(workbook, config.getColumnFormat(colName))
+            }
         }
 
         return summaryColumnsNames.size + 1
