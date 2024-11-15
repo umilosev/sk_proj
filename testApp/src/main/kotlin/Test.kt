@@ -319,6 +319,7 @@ fun main() {
                             "1.Count\n" +
                             "2.Sum\n" +
                             "3.Average\n" +
+                            "4.Sabiranje\n"+
                             "-1. Nazad\n"
                 )
                 when (userReader.readLine().toInt()) {
@@ -406,6 +407,22 @@ fun main() {
                             continue
                         }
                         data = calcEngine.calculateAverage(data, kolona)
+                    }
+
+                    4->{
+                        println("Unesite ime prve kolone")
+                        val kolona1 = userReader.readLine().toString()
+                        if(kolona1 == "-1") {
+                            println("Uspesno otkazano sabiranje")
+                            continue
+                        }
+                        println("Unesite ime druge kolone")
+                        val kolona2 = userReader.readLine().toString()
+                        if(kolona2 == "-1") {
+                            println("Uspesno otkazano sabiranje")
+                            continue
+                        }
+                        data = calcEngine.calculateAddition(data,kolona1,kolona2)
                     }
                 }
             }

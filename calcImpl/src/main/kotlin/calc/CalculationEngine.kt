@@ -91,8 +91,6 @@ class CalculationEngine {
             return data
         }
 
-        // TODO :: NEMAMO AVERAGE JER LISTA BROJEVA IME DEFAULT-NU AVERAGE FUNKCIJU
-        //      NEMOJ DA ZABORAVIS
         val sum = validNumbers.sum()
         val average = sum/validNumbers.size
 
@@ -101,6 +99,37 @@ class CalculationEngine {
         val updatedData = data.toMutableMap()
         updatedData["${columnName}_Average"] = listOf(averageAsString) + List(columnData.size - 1) { "" }
 
+        return updatedData
+    }
+
+    fun calculateAddition(data: Map<String, List<String>>, columnName1:String, columnName2:String):Map <String, List<String>> {
+        val columnData1 = data[columnName1]
+        val columnData2 = data[columnName2]
+
+        if(columnData1 == null || columnData2 == null) {
+            println("Greška: Jedna od kolona ne postoji.")
+            return data
+        }
+
+        val validNumbers1 = columnData1.mapNotNull { it.toDoubleOrNull() }
+        val validNumbers2 = columnData2.mapNotNull { it.toDoubleOrNull() }
+
+        if (validNumbers1.size != columnData1.size || validNumbers2.size != columnData2.size) {
+            println("Greška: Neka od kolona nisu brojevi")
+            return data
+        }
+
+        val zbir = validNumbers1.toMutableList()
+
+        for(i in 0 until validNumbers1.size) {
+            zbir[i] += validNumbers2[i]
+        }
+        var zbirString :List<String> = emptyList()
+        for(i in 0 until zbir.size) {
+            zbirString+= listOf(zbir[i].toString())
+        }
+        val updatedData = data.toMutableMap()
+        updatedData["${columnName1}+${columnName2}"]=zbirString
         return updatedData
     }
 
