@@ -40,11 +40,22 @@ tasks.shadowJar {
     mergeServiceFiles()  // Includes meta-inf service files
 }
 
+tasks.register<JavaExec>("runInstant") {
+    mainClass.set("testApp.InstantTestKt")  // Set to the new main class for this task
+    group = "application"
+    classpath = sourceSets["main"].runtimeClasspath
+    args = listOf("instant")  // You can pass different args here if needed
+}
+
 tasks.named<JavaExec>("run") {
     standardInput = System.`in`
 }
 
 tasks.named<JavaExec>("runShadow") {
+    standardInput = System.`in`
+}
+
+tasks.named<JavaExec>("runInstant") {
     standardInput = System.`in`
 }
 
