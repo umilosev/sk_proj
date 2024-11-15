@@ -100,8 +100,6 @@ class PdfReportImpl : ReportInterface {
             // Open the document for writing
             document.open()
 
-
-
             val titleFont = getFont(HELVETICA_BOLD, config.titleFontSize)
 
             val dataFont =  getFont(HELVETICA, config.dataFontSize)

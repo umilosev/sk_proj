@@ -86,7 +86,71 @@ class ExcelReportImpl : ReportInterface {
         summary: String?,
         config: FormattingConfig
     ) {
-        TODO("Not yet implemented")
+        val workbook: Workbook = XSSFWorkbook()
+        val sheet: Sheet = workbook.createSheet("Report")
+        sheet.defaultColumnWidth = 16
+
+        title?.let {
+            val titleRow: Row = sheet.createRow(0)
+            val titleCell: Cell = titleRow.createCell(0)
+            titleCell.setCellValue(it)
+            sheet.addMergedRegion(CellRangeAddress(0, 0, 0, data.size - 1))
+            val titleStyle = workbook.createCellStyle().apply {
+                alignment = HorizontalAlignment.CENTER
+                val titleFont: Font = workbook.createFont().apply {
+                    bold = true
+                    fontHeightInPoints = 18
+                }
+                setFont(titleFont)
+            }
+            titleCell.cellStyle = titleStyle
+        }
+
+        val keysWithoutCalcs = data.keys.filter { x ->
+            !x.contains("_Average") && !x.contains("_Sum") && !x.contains("Count")
+        }
+
+        if (header) {
+            val headerRow: Row = sheet.createRow(1)
+            keysWithoutCalcs.forEachIndexed { index, columnName ->
+                val headerCell = headerRow.createCell(index)
+                headerCell.setCellValue(columnName)
+                val headerStyle = workbook.createCellStyle().apply {
+                    alignment = HorizontalAlignment.CENTER
+                    val headerFont: Font = workbook.createFont().apply {
+                        bold = config.getHeaderFormat(columnName).isBold
+                        italic = config.getHeaderFormat(columnName).isItalic
+                        //underline je zakomentarisan zato sto ocekuje byte a ne boolean, mrzi me da tinker-ujem
+//                        underline = config.getHeaderFormat(columnName).isUnderline
+                        fontHeightInPoints = 18
+                    }
+                    setFont(headerFont)
+                }
+                headerCell.cellStyle = headerStyle
+            }
+        }
+
+        val numRows = data.values.first().size
+        for (i in 0 until numRows) {
+            val dataRow: Row = sheet.createRow(if (header) i + 2 else i + 1)
+            keysWithoutCalcs.forEachIndexed { index, columnName ->
+                val cell = dataRow.createCell(index)
+                cell.setCellValue(data[columnName]?.get(i) ?: "")
+            }
+        }
+
+        summary?.let {
+            val summaryRow: Row = sheet.createRow(numRows + 2)
+            val summaryCell: Cell = summaryRow.createCell(0)
+            summaryCell.setCellValue("Summary: $it")
+        }
+
+        val avgRows = populateCalculationRow(sheet, data, numRows + 4, "Average")
+        val sumRows = populateCalculationRow(sheet, data, numRows + 4 + avgRows + 1, "Sum")
+        val countRows = populateCalculationRow(sheet, data, numRows + 4 + avgRows + 1 + sumRows + 1, "Count")
+
+        FileOutputStream(destination).use { outputStream -> workbook.write(outputStream) }
+        workbook.close()
     }
 
     private fun populateCalculationRow(
