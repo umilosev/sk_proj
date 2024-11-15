@@ -34,6 +34,10 @@ class PdfReportImpl : ReportInterface {
             // Open the document for writing
             document.open()
 
+            val keysWithoutCalcs = data.keys.filter { x ->
+                !x.contains("_Average") && !x.contains("_Sum") && !x.contains("Count")
+            }
+
             // Add title if provided2
             title?.let {
                 val titleParagraph = Paragraph(it, getFont(HELVETICA_BOLD, 18f))
@@ -43,7 +47,7 @@ class PdfReportImpl : ReportInterface {
             }
 
             // Create a table based on the number of columns in the data
-            val columns = data.keys.toList()
+            val columns = keysWithoutCalcs.toList()
             val numColumns = columns.size
             val table = PdfPTable(numColumns)
 
@@ -64,6 +68,7 @@ class PdfReportImpl : ReportInterface {
                     table.addCell(cellData)
                 }
             }
+
 
             // Add the table to the document
             document.add(table)
@@ -104,6 +109,10 @@ class PdfReportImpl : ReportInterface {
 
             val dataFont =  getFont(HELVETICA, config.dataFontSize)
 
+            val keysWithoutCalcs = data.keys.filter { x ->
+                !x.contains("_Average") && !x.contains("_Sum") && !x.contains("Count")
+            }
+
             // Add title if provided
             title?.let {
                 val titleParagraph = Paragraph(it, titleFont)
@@ -113,7 +122,7 @@ class PdfReportImpl : ReportInterface {
             }
 
             // Create a table based on the number of columns in the data
-            val columns = data.keys.toList()
+            val columns = keysWithoutCalcs.toList()
             val numColumns = columns.size
             val table = PdfPTable(numColumns)
 
@@ -121,7 +130,8 @@ class PdfReportImpl : ReportInterface {
             if (header) {
                 columns.forEach { column ->
                     //pitamo da li nije ni jedan ni drugi, vratimo TIMES
-                    val font = if(!config.getHeaderFormat(column).isBold && !config.getHeaderFormat(column).isItalic) TIMES
+                    val font = if(!config.getHeaderFormat(column).isBold && !config.getHeaderFormat(column).isItalic)
+                        TIMES
                     //u ovaj else skliznemo ako znamo da je barem jedan ili oba
                     //pa cemo pitati da li je jedan i drugi
                     else if(config.getHeaderFormat(column).isBold && config.getHeaderFormat(column).isItalic) {
