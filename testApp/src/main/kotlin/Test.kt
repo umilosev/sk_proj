@@ -54,7 +54,7 @@ fun printData(data: Map<String, List<String>>) {
     println()
 }
 
-fun prepareData(jsonData: InputStreamReader): Map<String, List<String>> {
+fun prepareDataFromJson(jsonData: InputStreamReader): Map<String, List<String>> {
     val gson = Gson()
     val scheduleType = object : TypeToken<List<Schedule>>() {}.type
     val schedules: List<Schedule> = gson.fromJson(jsonData, scheduleType)
@@ -74,6 +74,29 @@ fun prepareData(jsonData: InputStreamReader): Map<String, List<String>> {
     return reportData
 }
 
+fun prepareDataFromCsv(csvData: InputStreamReader): Map<String, List<String>> {
+    val reader = csvData.buffered()
+    val header = reader.readLine()?.split(",") ?: throw IllegalArgumentException("CSV file is empty or missing header")
+
+    // Prepare a mutable map to collect column data
+    val reportData = mutableMapOf<String, MutableList<String>>()
+    header.forEach { column -> reportData[column] = mutableListOf() }
+
+    // Read the CSV lines and populate the map
+    reader.forEachLine { line ->
+        val values = line.split(",")
+        if (values.size != header.size) {
+            throw IllegalArgumentException("Row does not match header size: $line")
+        }
+        header.forEachIndexed { index, column ->
+            reportData[column]?.add(values[index])
+        }
+    }
+
+    // Convert mutable lists to immutable lists for the final map
+    return reportData.mapValues { it.value.toList() }
+}
+
 fun main() {
     val serviceLoader = ServiceLoader.load(ReportInterface::class.java)
 
@@ -84,6 +107,8 @@ fun main() {
     serviceLoader.forEach { service ->
         exporterServices[service.implName] = service
     }
+
+    val userReader = System.`in`.bufferedReader()
 
     val options = exporterServices.keys.toList()
 
@@ -96,9 +121,13 @@ fun main() {
 
     var skipFlag = false
 
-    val inputStream = object {}.javaClass.getResourceAsStream("/data.json")
+    println("Unesite ime fajla u kojem vam se nalaze podaci")
+    val fajl = userReader.readLine().toString()
+    val inputStream = object {}.javaClass.getResourceAsStream(fajl)
     val reader = InputStreamReader(inputStream)
-    var data = prepareData(reader)
+
+    var data = if(fajl.contains(".json")) prepareDataFromJson(reader) else prepareDataFromCsv(reader)
+
     reader.close()
 
     //testAppInstant(data, calcEngine, exporterServices)
@@ -111,7 +140,7 @@ fun main() {
             "6. Ispis tabele\n" +
             "-1. Nazad/Prekid radu\n"
 
-    val userReader = System.`in`.bufferedReader()
+
     println("\nDobro dosli, izvolite tutorijal za koriscenje programa\n" + tutorial)
 
     var eksporter = -1
@@ -134,7 +163,7 @@ fun main() {
                 }
                 println("\nEksporter " + options[eksporter] + " izabran!\n")
             }
-            //TODO moramo da odradimo mogucnosti za formatiranje u test aplikaciji i onda smo gotovi sa ovim projektom
+
             "2" -> {
                 println("1. Promenite font size za naslov (trenutno: ${formattingConfig.titleFontSize})")
                 formattingConfig.titleFontSize =
