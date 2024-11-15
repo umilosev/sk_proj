@@ -457,7 +457,8 @@ private fun testAppInstant(
 
     // explodes if columns non-existent
     val hdrEspbFormatting = HeaderFormatting("ESPB")
-    hdrEspbFormatting.options.color = "#FF0000"
+    hdrEspbFormatting.options.color = "#FFAB22"
+    hdrEspbFormatting.options.isBold = true
     val hdrGroupFormatting = HeaderFormatting("group")
     hdrGroupFormatting.options.isItalic = true
     hdrGroupFormatting.options.isUnderline = true
@@ -470,7 +471,22 @@ private fun testAppInstant(
     colGroupFormatting.options.isBold = true
 
     exporterServices["PDF"]?.generateReportWithFormatting(
-        myData, "reported_la_formatted.pdf", true, "Soul Society",
+        myData, "reported_la_formatted.pdf", true, "Soul",
+        config = FormattingConfig(
+            headerFormats = listOf(
+                hdrEspbFormatting, hdrGroupFormatting
+            ),
+            columnFormats = listOf(
+                colEspbFormatting, colGroupFormatting
+            ),
+            titleFontSize = 24f,
+            columnHeaderFontSize = 14f,
+            dataFontSize = 12f
+        )
+    )
+
+    exporterServices["XLS"]?.generateReportWithFormatting(
+        myData, "reported_la_formatted.xlsx", true, "Society",
         config = FormattingConfig(
             headerFormats = listOf(
                 hdrEspbFormatting, hdrGroupFormatting

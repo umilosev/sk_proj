@@ -1,9 +1,11 @@
 package exc
 
 
+import formatting.FormatOptions
 import formatting.FormattingConfig
 import org.apache.poi.ss.usermodel.*
 import org.apache.poi.ss.util.CellRangeAddress
+import org.apache.poi.xssf.usermodel.XSSFColor
 import org.apache.poi.xssf.usermodel.XSSFWorkbook
 import spec.ReportInterface
 import java.io.FileOutputStream
@@ -90,6 +92,7 @@ class ExcelReportImpl : ReportInterface {
         val sheet: Sheet = workbook.createSheet("Report")
         sheet.defaultColumnWidth = 16
 
+        // Apply title formatting
         title?.let {
             val titleRow: Row = sheet.createRow(0)
             val titleCell: Cell = titleRow.createCell(0)
@@ -99,43 +102,35 @@ class ExcelReportImpl : ReportInterface {
                 alignment = HorizontalAlignment.CENTER
                 val titleFont: Font = workbook.createFont().apply {
                     bold = true
-                    fontHeightInPoints = 18
+                    fontHeightInPoints = config.titleFontSize.toInt().toShort()
                 }
                 setFont(titleFont)
             }
             titleCell.cellStyle = titleStyle
         }
 
-        val keysWithoutCalcs = data.keys.filter { x ->
-            !x.contains("_Average") && !x.contains("_Sum") && !x.contains("Count")
-        }
-
+        // Apply header formatting
         if (header) {
             val headerRow: Row = sheet.createRow(1)
-            keysWithoutCalcs.forEachIndexed { index, columnName ->
+            data.keys.forEachIndexed { index, columnName ->
                 val headerCell = headerRow.createCell(index)
                 headerCell.setCellValue(columnName)
-                val headerStyle = workbook.createCellStyle().apply {
-                    alignment = HorizontalAlignment.CENTER
-                    val headerFont: Font = workbook.createFont().apply {
-                        bold = config.getHeaderFormat(columnName).isBold
-                        italic = config.getHeaderFormat(columnName).isItalic
-                        //underline je zakomentarisan zato sto ocekuje byte a ne boolean, mrzi me da tinker-ujem
-//                        underline = config.getHeaderFormat(columnName).isUnderline
-                        fontHeightInPoints = 18
-                    }
-                    setFont(headerFont)
-                }
+
+                val headerStyle = createCellStyle(workbook, config.getHeaderFormat(columnName))
                 headerCell.cellStyle = headerStyle
             }
         }
 
+        // Apply data formatting
         val numRows = data.values.first().size
         for (i in 0 until numRows) {
             val dataRow: Row = sheet.createRow(if (header) i + 2 else i + 1)
-            keysWithoutCalcs.forEachIndexed { index, columnName ->
+            data.keys.forEachIndexed { index, columnName ->
                 val cell = dataRow.createCell(index)
                 cell.setCellValue(data[columnName]?.get(i) ?: "")
+
+                val columnStyle = createCellStyle(workbook, config.getColumnFormat(columnName))
+                cell.cellStyle = columnStyle
             }
         }
 
@@ -145,12 +140,39 @@ class ExcelReportImpl : ReportInterface {
             summaryCell.setCellValue("Summary: $it")
         }
 
-        val avgRows = populateCalculationRow(sheet, data, numRows + 4, "Average")
-        val sumRows = populateCalculationRow(sheet, data, numRows + 4 + avgRows + 1, "Sum")
-        val countRows = populateCalculationRow(sheet, data, numRows + 4 + avgRows + 1 + sumRows + 1, "Count")
-
         FileOutputStream(destination).use { outputStream -> workbook.write(outputStream) }
         workbook.close()
+    }
+
+    private fun createCellStyle(workbook: Workbook, options: FormatOptions): CellStyle {
+        val style = workbook.createCellStyle()
+        val font = workbook.createFont()
+
+        // Apply formatting options
+        if (options.isBold) font.bold = true
+        if (options.isItalic) font.italic = true
+        if (options.isUnderline) font.underline = Font.U_SINGLE
+// we can supply color this way too huh
+//        if (options.textStyle.contains(TextStyle.COLOR)) {
+//            font.color = IndexedColors.valueOf(options.color.uppercase()).index
+//        }
+
+//        if (options.color.isNotEmpty()) {
+//            val colorString = if (options.color.startsWith("#")) options.color else "#${options.color}"
+//            val rgbColor = java.awt.Color.decode(colorString)
+//
+//            val fillColor = XSSFColor(rgbColor, null)  // For Excel file format .xlsx
+//
+//            println("$colorString - $rgbColor - $fillColor")
+//
+//            style.fillForegroundColor = fillColor.index // Set the color using XSSFColor
+//            style.fillPattern = FillPatternType.SOLID_FOREGROUND // Solid fill pattern
+//        }
+
+        style.setFont(font)
+        style.alignment = HorizontalAlignment.CENTER // Adjust as needed
+
+        return style
     }
 
     private fun populateCalculationRow(
