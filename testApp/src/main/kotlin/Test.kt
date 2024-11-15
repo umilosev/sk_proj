@@ -215,13 +215,9 @@ fun main() {
                         }
                     }
 
-
                     val columnFormat = ColumnFormatting(header)
                     val columnFormats = listOf(columnFormat)
                     formattingConfig.columnFormats += columnFormats
-
-
-
 
                     while (true) {
                         if (skipFlag) break
@@ -406,7 +402,7 @@ fun main() {
                 }
 
                 if (exporterServices[options[eksporter]]!!.supportsFormatting) {
-                    println(formattingConfig)
+                    if(formattingConfig.headerFormats.isNotEmpty())
                     exporterServices[options[eksporter]]?.generateReportWithFormatting(
                         data,
                         destinacija,
@@ -414,6 +410,12 @@ fun main() {
                         "Izvestaj",
                         "Summary",
                         formattingConfig
+                    )else exporterServices[options[eksporter]]?.generateReport(
+                        data,
+                        destinacija,
+                        true,
+                        "Izvestaj",
+                        "Summary"
                     )
                 } else exporterServices[options[eksporter]]?.generateReport(data, destinacija, true)
                 println("\nUspesno ste ispisali izvestaj sa " + options[eksporter] + " eksporterom\n")
