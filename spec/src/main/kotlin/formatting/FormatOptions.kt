@@ -1,10 +1,10 @@
 package formatting
 
 data class FormatOptions(
-    val textStyle: Set<TextStyle> = emptySet(),
-    val color: String? = null,
-    val isBold: Boolean? = null,
-    val isItalic: Boolean? = null,
-    val isUnderline: Boolean? = null,
+    var textStyle: Set<TextStyle> = emptySet(),
+    var color: String = "white",
+    var isBold: Boolean = false,
+    var isItalic: Boolean = false,
+    var isUnderline: Boolean = false,
 )
 

@@ -34,7 +34,7 @@ class PdfReportImpl : ReportInterface {
             // Open the document for writing
             document.open()
 
-            // Add title if provided
+            // Add title if provided2
             title?.let {
                 val titleParagraph = Paragraph(it, getFont(HELVETICA_BOLD, 18f))
                 titleParagraph.alignment = Element.ALIGN_CENTER
@@ -100,11 +100,11 @@ class PdfReportImpl : ReportInterface {
             // Open the document for writing
             document.open()
 
-            // Apply formatting based on config
-            val fonts = applyFormatting(config)
-            val titleFont = getFont(HELVETICA_BOLD, 18f)
-            val headerFont = getFont(HELVETICA_BOLD, 12f)
-            val dataFont =  getFont(HELVETICA, 10f)
+
+
+            val titleFont = getFont(HELVETICA_BOLD, config.titleFontSize)
+
+            val dataFont =  getFont(HELVETICA, config.dataFontSize)
 
             // Add title if provided
             title?.let {
@@ -122,6 +122,18 @@ class PdfReportImpl : ReportInterface {
             // Add header row if necessary
             if (header) {
                 columns.forEach { column ->
+                    //pitamo da li nije ni jedan ni drugi, vratimo TIMES
+                    val font = if(!config.getHeaderFormat(column).isBold && !config.getHeaderFormat(column).isItalic) TIMES
+                    //u ovaj else skliznemo ako znamo da je barem jedan ili oba
+                    //pa cemo pitati da li je jedan i drugi
+                    else if(config.getHeaderFormat(column).isBold && config.getHeaderFormat(column).isItalic) {
+                        TIMES_BOLDITALIC
+                    }
+                    //i onda za kraj ako znamo da nisu oba onda je ili jedan ili drugi
+                    //pa cemo pitati da li je jedan ako nije znamo da je drugi
+                    else if(config.getHeaderFormat(column).isItalic) TIMES_ITALIC else TIMES_BOLD
+
+                    val headerFont = getFont(font, config.columnHeaderFontSize)
                     val cell = PdfPCell(Paragraph(column, headerFont))
                     cell.horizontalAlignment = Element.ALIGN_CENTER
                     table.addCell(cell)
@@ -133,7 +145,21 @@ class PdfReportImpl : ReportInterface {
             for (i in 0 until numRows) {
                 columns.forEach { column ->
                     val cellData = data[column]?.get(i) ?: ""
-                    val cell = PdfPCell(Paragraph(cellData, dataFont))
+
+                    //pitamo da li nije ni jedan ni drugi, vratimo TIMES
+                    val font = if(!config.getColumnFormat(column).isBold && !config.getColumnFormat(column).isItalic) TIMES
+                    //u ovaj else skliznemo ako znamo da je barem jedan ili oba
+                    //pa cemo pitati da li je jedan i drugi
+                    else if(config.getColumnFormat(column).isBold && config.getColumnFormat(column).isItalic) {
+                        TIMES_BOLDITALIC
+                    }
+                    //i onda za kraj ako znamo da nisu oba onda je ili jedan ili drugi
+                    //pa cemo pitati da li je jedan ako nije znamo da je drugi
+                    else if(config.getColumnFormat(column).isItalic) TIMES_ITALIC else TIMES_BOLD
+
+                    val columnFont = getFont(font, config.dataFontSize)
+
+                    val cell = PdfPCell(Paragraph(cellData, columnFont))
                     cell.horizontalAlignment = Element.ALIGN_CENTER
                     table.addCell(cell)
                 }

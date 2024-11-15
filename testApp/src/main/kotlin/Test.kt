@@ -3,7 +3,9 @@ package testApp
 import calc.CalculationEngine
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import formatting.ColumnFormatting
 import formatting.FormattingConfig
+import formatting.HeaderFormatting
 import spec.ReportInterface
 import java.io.InputStreamReader
 import java.util.*
@@ -87,10 +89,12 @@ fun main() {
 
     // Postavi podrazumevane vrednosti za FormattingConfig
     val formattingConfig = FormattingConfig(
-        titleFontSize = 16, // podrazumevana veličina fonta za naslov
-        columnHeaderFontSize = 12, // podrazumevana veličina fonta za zaglavlja kolona
-        dataFontSize = 10 // podrazumevana veličina fonta za podatke
+        titleFontSize = 16f, // podrazumevana veličina fonta za naslov
+        columnHeaderFontSize = 12f, // podrazumevana veličina fonta za zaglavlja kolona
+        dataFontSize = 10f, // podrazumevana veličina fonta za podatke
     )
+
+    var skipFlag = false
 
     val inputStream = object {}.javaClass.getResourceAsStream("/data.json")
     val reader = InputStreamReader(inputStream)
@@ -106,6 +110,7 @@ fun main() {
 
     val userReader = System.`in`.bufferedReader()
     println("\nDobro dosli, izvolite tutorijal za koriscenje programa\n" + tutorial)
+
     var eksporter =-1
     while(true) {
         println("\nIzaberite sta zelite da uradite, 5 za pomoc\n")
@@ -128,36 +133,111 @@ fun main() {
             }
             //TODO moramo da odradimo mogucnosti za formatiranje u test aplikaciji i onda smo gotovi sa ovim projektom
             "2" -> {
-                while (true) {
-                    println("\nBiranje formata\n")
-                    println("1. Set title font size (current: ${formattingConfig.titleFontSize})")
-                    println("2. Set column header font size (current: ${formattingConfig.columnHeaderFontSize})")
-                    println("3. Set data font size (current: ${formattingConfig.dataFontSize})")
-                    println("4. Exit")
+                println("1. Promenite font size za naslov (trenutno: ${formattingConfig.titleFontSize})")
+                formattingConfig.titleFontSize = userReader.readLine().toString().toFloatOrNull() ?: formattingConfig.titleFontSize
+                for((header,kolona) in data.entries) {
 
-                    print("Enter option: ")
-                    when (userReader.readLine().toString()) {
-                        "1" -> {
-                            print("Enter title font size: ")
-                            formattingConfig.titleFontSize = readLine()?.toIntOrNull() ?: formattingConfig.titleFontSize
+                    val headerFormat = HeaderFormatting(header)
+                    val headerFormats = listOf(headerFormat)
+                    formattingConfig.headerFormats += headerFormats
+
+                    println("\nBiranje formata za ${header}\n")
+                    while(true){
+                        if(skipFlag) break
+                        println("1. Promenite header font size (trenutno: ${formattingConfig.columnHeaderFontSize})")
+                        println("2. Promenite bold-ovanje header-a (trenutno: ${if (formattingConfig.getHeaderFormat(header).isBold) "jeste" else "nije"})")
+                        println("3. Promenite italic-ovanje header-a (trenutno: ${if (formattingConfig.getHeaderFormat(header).isItalic) "jeste" else "nije"})")
+                        println("4. Promenite underline header-a (trenutno: ${if (formattingConfig.getHeaderFormat(header).isUnderline) "jeste" else "nije"})")
+                        println("5. Promenite tekst-stil header-a")
+                        println("0. Preskocite ovaj header: ${header}")
+
+                        print("Enter option: ")
+                        when (userReader.readLine().toString()) {
+                            "1" -> {
+                                print("Unesite font size za kolonu: ")
+                                formattingConfig.columnHeaderFontSize = userReader.readLine().toString().toFloatOrNull() ?: formattingConfig.columnHeaderFontSize
+                            }
+                            "2" -> {
+                                formattingConfig.getHeaderFormat(header).isBold = !formattingConfig.getHeaderFormat(header).isBold
+                                println("Sada ${header} ${if (formattingConfig.getHeaderFormat(header).isBold) "jeste" else "nije"} boldiran!")
+                            }
+                            "3" -> {
+                                formattingConfig.getHeaderFormat(header).isItalic = !formattingConfig.getHeaderFormat(header).isItalic
+                                println("Sada ${header} ${if (formattingConfig.getHeaderFormat(header).isItalic) "jeste" else "nije"} italic-ovan!")
+                            }
+                            "4" -> {
+                                formattingConfig.getHeaderFormat(header).isUnderline = !formattingConfig.getHeaderFormat(header).isUnderline
+                                println("Sada ${header} ${if (formattingConfig.getHeaderFormat(header).isUnderline) "jeste" else "nije"} underlined!")
+                            }
+                            "5" ->{
+                                println("TBD")
+                            }
+                            "0" ->{
+                                println("Header zavrsen...")
+                                break
+                            }
+                            else -> println("Invalid option. Please try again.")
                         }
-                        "2" -> {
-                            print("Enter column header font size: ")
-                            formattingConfig.columnHeaderFontSize = readLine()?.toIntOrNull() ?: formattingConfig.columnHeaderFontSize
+                    }
+
+
+                        val columnFormat = ColumnFormatting(header)
+                        val columnFormats = listOf(columnFormat)
+                        formattingConfig.columnFormats += columnFormats
+
+
+                    println("\nBiranje formata za ${header} kolonu : koja je popunjena ovim podacima ${kolona}\n")
+
+                    while(true) {
+
+                        println("1. Promenite font size za kolonu (trenutno: ${formattingConfig.dataFontSize})")
+                        println("2. Boldirajte kolonu(trenutno: ${if (formattingConfig.getColumnFormat(header).isBold) "jeste" else "nije"})")
+                        println("3. Italic-ujte kolonu(trenutno: ${if (formattingConfig.getColumnFormat(header).isItalic) "jeste" else "nije"})")
+                        println("4. Underline-ujte kolonu(trenutno: ${if (formattingConfig.getColumnFormat(header).isUnderline) "jeste" else "nije"})")
+
+                        when (userReader.readLine().toString()) {
+                            "1" -> {
+                                print("Unesite font size za kolonu: ")
+                                formattingConfig.dataFontSize = userReader.readLine().toString().toFloatOrNull() ?: formattingConfig.dataFontSize
+                            }
+                            "2" -> {
+                                formattingConfig.getColumnFormat(header).isBold = !formattingConfig.getColumnFormat(header).isBold
+                                println("Sada ${header} ${if (formattingConfig.getColumnFormat(header).isBold) "jeste" else "nije"} boldiran!")
+                            }
+                            "3" -> {
+                                formattingConfig.getColumnFormat(header).isItalic = !formattingConfig.getColumnFormat(header).isItalic
+                                println("Sada ${header} ${if (formattingConfig.getColumnFormat(header).isItalic) "jeste" else "nije"} italic-ovan!")
+                            }
+                            "4" -> {
+                                formattingConfig.getColumnFormat(header).isUnderline = !formattingConfig.getColumnFormat(header).isUnderline
+                                println("Sada ${header} ${if (formattingConfig.getColumnFormat(header).isUnderline) "jeste" else "nije"} underline-ovan!")
+                            }
+                            "5" ->{
+                                println("TBD")
+                            }
+                            "0" ->{
+                                println("Header zavrsen...")
+                                break
+                            }
+                            else -> println("Invalid option. Please try again.")
                         }
-                        "3" -> {
-                            print("Enter data font size: ")
-                            formattingConfig.dataFontSize = readLine()?.toIntOrNull() ?: formattingConfig.dataFontSize
+                    }
+
+                    if(skipFlag) continue
+                    println("Da li zelite da nastavite sa formatiranje kolone?\n" +
+                            "1. Da\n" +
+                            "2. Ne")
+
+                    when(userReader.readLine().toString().lowercase(Locale.getDefault())) {
+                        "1","da","yes"->{
+                            continue
                         }
-                        "4" -> {
-                            println("Exiting...")
-                            break
+                        "2","ne","no" ->{
+                            skipFlag=!skipFlag
                         }
-                        else -> println("Invalid option. Please try again.")
                     }
                 }
             }
-
             "3" -> {
                 println("Izaberite koju kalkulaciju zelite da uradite\n" +
                         "1.Count\n" +
@@ -245,19 +325,20 @@ fun main() {
                 println(
                     "\nDa biste ispisali izvestaj potrebno je da ga imenujete\n" +
                             "potrebno je da pratite ovu konvenciju\n" +
-                            "Excel -> .xlsx\n" +
+                            "XLS -> .xlsx\n" +
                             "PDF -> .pdf\n" +
                             "CSV -> .csv\n" +
                             "TXT -> .txt"
                 )
                 println("\nVi ste odabrali "+options[eksporter]+"\n")
                 var destinacija = userReader.readLine().toString()
-                if (destinacija.equals("-1")) {
+                if (destinacija == "-1") {
                     println("\nUspesno ste ponistili akciju")
                     continue
                 }
 
-                if(options[eksporter].equals("XLS")||options[eksporter].equals("PDF")) {
+                if(exporterServices[options[eksporter]]!!.supportsFormatting) {
+                    println(formattingConfig)
                     exporterServices[options[eksporter]]?.generateReportWithFormatting(data, destinacija,true,"Izvestaj","Summary",formattingConfig)
                 }
                 else exporterServices[options[eksporter]]?.generateReport(data, destinacija, true)
@@ -276,35 +357,8 @@ fun main() {
                 println("Hvala sto ste koristili nas program!")
                 break
             }
-
         }
     }
-//    println("Unesite ime kolone")
-//    val kolona = userReader.readLine().toString()
-//    println("Vece ili manje?")
-//    val vm = userReader.readLine().toString()
-//    var veceManje = if(vm.contains("vece")) 1 else -1
-//    println("Po kom broju zelite da prebrojite")
-//    val kondicional=userReader.readLine().toString()
-//    println("Pre kalkulacije")
-//
-//    println(data)
-//
-//    data = calcEngine.calculateAverage(data, "ESPB")
-//    if(veceManje==1){
-//        data = calcEngine.calculateCount(data, kolona, veceManje, condition = {element -> (element.toDouble() > kondicional.toDouble())})
-//    }
-//    else data = calcEngine.calculateCount(data, kolona, veceManje, condition = {element -> (element.toDouble() < kondicional.toDouble())})
-//
-//    data = calcEngine.calculateSum(data, "ESPB")
-//
-//    println("Nakon kalkulacije")
-//
-//    println(data)
-
-//    exporterServices["XLS"]?.generateReport(data, "excelReport.xlsx", true)
-
-
 }
 
 private fun testAppInstant(
