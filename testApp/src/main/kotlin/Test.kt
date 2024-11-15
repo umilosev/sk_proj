@@ -102,7 +102,7 @@ fun main() {
     var data = prepareData(reader)
     reader.close()
 
-    testAppInstant(data, calcEngine, exporterServices)
+    //testAppInstant(data, calcEngine, exporterServices)
 
     val tutorial = "\n1. Biranje eksportera\n" +
             "2. Formatiranje izvestaja(dostupno samo PDF i Excel exporter-u)\n" +
@@ -146,9 +146,9 @@ fun main() {
                     val headerFormats = listOf(headerFormat)
                     formattingConfig.headerFormats += headerFormats
 
-                    println("\nBiranje formata za ${header}\n")
                     while (true) {
                         if (skipFlag) break
+                        println("\nBiranje formata za ${header}\n")
                         println("1. Promenite header font size (trenutno: ${formattingConfig.columnHeaderFontSize})")
                         println(
                             "2. Promenite bold-ovanje header-a (trenutno: ${
@@ -222,10 +222,11 @@ fun main() {
                     formattingConfig.columnFormats += columnFormats
 
 
-                    println("\nBiranje formata za ${header} kolonu : koja je popunjena ovim podacima ${kolona}\n")
+
 
                     while (true) {
-
+                        if (skipFlag) break
+                        println("\nBiranje formata za ${header} kolonu : koja je popunjena ovim podacima ${kolona}\n")
                         println("1. Promenite font size za kolonu (trenutno: ${formattingConfig.dataFontSize})")
                         println("2. Boldirajte kolonu(trenutno: ${if (formattingConfig.getColumnFormat(header).isBold) "jeste" else "nije"})")
                         println("3. Italic-ujte kolonu(trenutno: ${if (formattingConfig.getColumnFormat(header).isItalic) "jeste" else "nije"})")
@@ -271,7 +272,7 @@ fun main() {
 
                     if (skipFlag) continue
                     println(
-                        "Da li zelite da nastavite sa formatiranje kolone?\n" +
+                        "Da li zelite da nastavite sa formatiranje tabele?\n" +
                                 "1. Da\n" +
                                 "2. Ne"
                     )
