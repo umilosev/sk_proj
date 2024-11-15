@@ -9,10 +9,14 @@ data class FormattingConfig(
     var dataFontSize: Float
 ) {
     fun getColumnFormat(columnName: String): FormatOptions {
-        return columnFormats.find { it.columnName == columnName }!!.options
+//        println("Hello? " + columnName + " - " + columnFormats.find{x -> x.columnName == columnName})
+
+        return columnFormats.find { it.columnName == columnName }?.options ?: FormatOptions()
     }
     fun getHeaderFormat(columnName: String): FormatOptions {
-        return headerFormats.find { it.headerName == columnName }!!.options
+//        println("Hello? " + columnName + " - " + headerFormats.find{x -> x.headerName == columnName})
+
+        return headerFormats.find { it.headerName == columnName }?.options ?: FormatOptions()
     }
 }
 

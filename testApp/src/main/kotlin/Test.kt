@@ -21,7 +21,7 @@ data class Schedule(
     val ESPB: String,
 )
 
-fun printData(data: Map<String,List<String>>){
+fun printData(data: Map<String, List<String>>) {
     val columns = data.keys.toList()
     val numRows = data.values.first().size
 
@@ -85,6 +85,7 @@ fun main() {
         exporterServices[service.implName] = service
     }
 
+
     val options = exporterServices.keys.toList()
 
     // Postavi podrazumevane vrednosti za FormattingConfig
@@ -100,7 +101,10 @@ fun main() {
     val reader = InputStreamReader(inputStream)
     var data = prepareData(reader)
     reader.close()
-    val tutorial =             "\n1. Biranje eksportera\n" +
+
+    testAppInstant(data, calcEngine, exporterServices)
+
+    val tutorial = "\n1. Biranje eksportera\n" +
             "2. Formatiranje izvestaja(dostupno samo PDF i Excel exporter-u)\n" +
             "3. Odradjivanje kalkulacija\n" +
             "4. Ispisivanje dosadasnjeg izvestaja\n" +
@@ -111,8 +115,8 @@ fun main() {
     val userReader = System.`in`.bufferedReader()
     println("\nDobro dosli, izvolite tutorijal za koriscenje programa\n" + tutorial)
 
-    var eksporter =-1
-    while(true) {
+    var eksporter = -1
+    while (true) {
         println("\nIzaberite sta zelite da uradite, 5 za pomoc\n")
         var unos = System.`in`.bufferedReader().readLine().toString()
 
@@ -120,34 +124,56 @@ fun main() {
             "1" -> {
                 var i = 1
                 println("\nIzaberite eksporter:\n")
-                for((eksporterServis) in exporterServices.entries){
+                for ((eksporterServis) in exporterServices.entries) {
                     println("$i.$eksporterServis")
-                    i+=1
+                    i += 1
                 }
-                eksporter = userReader.readLine().toInt()-1
-                if(eksporter == -1) {
+                eksporter = userReader.readLine().toInt() - 1
+                if (eksporter == -1) {
                     println("Uspesno ste prekinuli akciju")
                     continue
                 }
-                println("\nEksporter "+options[eksporter]+" izabran!\n")
+                println("\nEksporter " + options[eksporter] + " izabran!\n")
             }
             //TODO moramo da odradimo mogucnosti za formatiranje u test aplikaciji i onda smo gotovi sa ovim projektom
             "2" -> {
                 println("1. Promenite font size za naslov (trenutno: ${formattingConfig.titleFontSize})")
-                formattingConfig.titleFontSize = userReader.readLine().toString().toFloatOrNull() ?: formattingConfig.titleFontSize
-                for((header,kolona) in data.entries) {
+                formattingConfig.titleFontSize =
+                    userReader.readLine().toString().toFloatOrNull() ?: formattingConfig.titleFontSize
+                for ((header, kolona) in data.entries) {
 
                     val headerFormat = HeaderFormatting(header)
                     val headerFormats = listOf(headerFormat)
                     formattingConfig.headerFormats += headerFormats
 
                     println("\nBiranje formata za ${header}\n")
-                    while(true){
-                        if(skipFlag) break
+                    while (true) {
+                        if (skipFlag) break
                         println("1. Promenite header font size (trenutno: ${formattingConfig.columnHeaderFontSize})")
-                        println("2. Promenite bold-ovanje header-a (trenutno: ${if (formattingConfig.getHeaderFormat(header).isBold) "jeste" else "nije"})")
-                        println("3. Promenite italic-ovanje header-a (trenutno: ${if (formattingConfig.getHeaderFormat(header).isItalic) "jeste" else "nije"})")
-                        println("4. Promenite underline header-a (trenutno: ${if (formattingConfig.getHeaderFormat(header).isUnderline) "jeste" else "nije"})")
+                        println(
+                            "2. Promenite bold-ovanje header-a (trenutno: ${
+                                if (formattingConfig.getHeaderFormat(
+                                        header
+                                    ).isBold
+                                ) "jeste" else "nije"
+                            })"
+                        )
+                        println(
+                            "3. Promenite italic-ovanje header-a (trenutno: ${
+                                if (formattingConfig.getHeaderFormat(
+                                        header
+                                    ).isItalic
+                                ) "jeste" else "nije"
+                            })"
+                        )
+                        println(
+                            "4. Promenite underline header-a (trenutno: ${
+                                if (formattingConfig.getHeaderFormat(
+                                        header
+                                    ).isUnderline
+                                ) "jeste" else "nije"
+                            })"
+                        )
                         println("5. Promenite tekst-stil header-a")
                         println("0. Preskocite ovaj header: ${header}")
 
@@ -155,40 +181,50 @@ fun main() {
                         when (userReader.readLine().toString()) {
                             "1" -> {
                                 print("Unesite font size za kolonu: ")
-                                formattingConfig.columnHeaderFontSize = userReader.readLine().toString().toFloatOrNull() ?: formattingConfig.columnHeaderFontSize
+                                formattingConfig.columnHeaderFontSize = userReader.readLine().toString().toFloatOrNull()
+                                    ?: formattingConfig.columnHeaderFontSize
                             }
+
                             "2" -> {
-                                formattingConfig.getHeaderFormat(header).isBold = !formattingConfig.getHeaderFormat(header).isBold
+                                formattingConfig.getHeaderFormat(header).isBold =
+                                    !formattingConfig.getHeaderFormat(header).isBold
                                 println("Sada ${header} ${if (formattingConfig.getHeaderFormat(header).isBold) "jeste" else "nije"} boldiran!")
                             }
+
                             "3" -> {
-                                formattingConfig.getHeaderFormat(header).isItalic = !formattingConfig.getHeaderFormat(header).isItalic
+                                formattingConfig.getHeaderFormat(header).isItalic =
+                                    !formattingConfig.getHeaderFormat(header).isItalic
                                 println("Sada ${header} ${if (formattingConfig.getHeaderFormat(header).isItalic) "jeste" else "nije"} italic-ovan!")
                             }
+
                             "4" -> {
-                                formattingConfig.getHeaderFormat(header).isUnderline = !formattingConfig.getHeaderFormat(header).isUnderline
+                                formattingConfig.getHeaderFormat(header).isUnderline =
+                                    !formattingConfig.getHeaderFormat(header).isUnderline
                                 println("Sada ${header} ${if (formattingConfig.getHeaderFormat(header).isUnderline) "jeste" else "nije"} underlined!")
                             }
-                            "5" ->{
+
+                            "5" -> {
                                 println("TBD")
                             }
-                            "0" ->{
+
+                            "0" -> {
                                 println("Header zavrsen...")
                                 break
                             }
+
                             else -> println("Invalid option. Please try again.")
                         }
                     }
 
 
-                        val columnFormat = ColumnFormatting(header)
-                        val columnFormats = listOf(columnFormat)
-                        formattingConfig.columnFormats += columnFormats
+                    val columnFormat = ColumnFormatting(header)
+                    val columnFormats = listOf(columnFormat)
+                    formattingConfig.columnFormats += columnFormats
 
 
                     println("\nBiranje formata za ${header} kolonu : koja je popunjena ovim podacima ${kolona}\n")
 
-                    while(true) {
+                    while (true) {
 
                         println("1. Promenite font size za kolonu (trenutno: ${formattingConfig.dataFontSize})")
                         println("2. Boldirajte kolonu(trenutno: ${if (formattingConfig.getColumnFormat(header).isBold) "jeste" else "nije"})")
@@ -198,117 +234,149 @@ fun main() {
                         when (userReader.readLine().toString()) {
                             "1" -> {
                                 print("Unesite font size za kolonu: ")
-                                formattingConfig.dataFontSize = userReader.readLine().toString().toFloatOrNull() ?: formattingConfig.dataFontSize
+                                formattingConfig.dataFontSize =
+                                    userReader.readLine().toString().toFloatOrNull() ?: formattingConfig.dataFontSize
                             }
+
                             "2" -> {
-                                formattingConfig.getColumnFormat(header).isBold = !formattingConfig.getColumnFormat(header).isBold
+                                formattingConfig.getColumnFormat(header).isBold =
+                                    !formattingConfig.getColumnFormat(header).isBold
                                 println("Sada ${header} ${if (formattingConfig.getColumnFormat(header).isBold) "jeste" else "nije"} boldiran!")
                             }
+
                             "3" -> {
-                                formattingConfig.getColumnFormat(header).isItalic = !formattingConfig.getColumnFormat(header).isItalic
+                                formattingConfig.getColumnFormat(header).isItalic =
+                                    !formattingConfig.getColumnFormat(header).isItalic
                                 println("Sada ${header} ${if (formattingConfig.getColumnFormat(header).isItalic) "jeste" else "nije"} italic-ovan!")
                             }
+
                             "4" -> {
-                                formattingConfig.getColumnFormat(header).isUnderline = !formattingConfig.getColumnFormat(header).isUnderline
+                                formattingConfig.getColumnFormat(header).isUnderline =
+                                    !formattingConfig.getColumnFormat(header).isUnderline
                                 println("Sada ${header} ${if (formattingConfig.getColumnFormat(header).isUnderline) "jeste" else "nije"} underline-ovan!")
                             }
-                            "5" ->{
+
+                            "5" -> {
                                 println("TBD")
                             }
-                            "0" ->{
+
+                            "0" -> {
                                 println("Header zavrsen...")
                                 break
                             }
+
                             else -> println("Invalid option. Please try again.")
                         }
                     }
 
-                    if(skipFlag) continue
-                    println("Da li zelite da nastavite sa formatiranje kolone?\n" +
-                            "1. Da\n" +
-                            "2. Ne")
+                    if (skipFlag) continue
+                    println(
+                        "Da li zelite da nastavite sa formatiranje kolone?\n" +
+                                "1. Da\n" +
+                                "2. Ne"
+                    )
 
-                    when(userReader.readLine().toString().lowercase(Locale.getDefault())) {
-                        "1","da","yes"->{
+                    when (userReader.readLine().toString().lowercase(Locale.getDefault())) {
+                        "1", "da", "yes" -> {
                             continue
                         }
-                        "2","ne","no" ->{
-                            skipFlag=!skipFlag
+
+                        "2", "ne", "no" -> {
+                            skipFlag = !skipFlag
                         }
                     }
                 }
             }
+
             "3" -> {
-                println("Izaberite koju kalkulaciju zelite da uradite\n" +
-                        "1.Count\n" +
-                        "2.Sum\n" +
-                        "3.Average\n" +
-                        "-1. Nazad\n")
-                when(userReader.readLine().toInt()){
-                    1->{
-                        println("Sta zelite da prebrojavate?\n" +
-                                "1. Reci\n" +
-                                "2. Brojeve\n")
+                println(
+                    "Izaberite koju kalkulaciju zelite da uradite\n" +
+                            "1.Count\n" +
+                            "2.Sum\n" +
+                            "3.Average\n" +
+                            "-1. Nazad\n"
+                )
+                when (userReader.readLine().toInt()) {
+                    1 -> {
+                        println(
+                            "Sta zelite da prebrojavate?\n" +
+                                    "1. Reci\n" +
+                                    "2. Brojeve\n"
+                        )
                         val metoda = userReader.readLine().toInt()
-                        if(metoda == -1) {
+                        if (metoda == -1) {
                             println("\nUspesno ste ponistili akciju\n")
                             continue
                         }
                         println("\nUnesite ime kolone\n")
                         val kolona = userReader.readLine().toString()
-                        if(kolona.equals("-1")) {
+                        if (kolona.equals("-1")) {
                             println("\nUspesno ste ponistili akciju\n")
                             continue
                         }
-                        when(metoda){
+                        when (metoda) {
                             1 -> {
                                 println("\nKoju rec trazite\n")
                                 val kondicional = userReader.readLine().toString()
-                                if(kondicional.equals("-1")){
+                                if (kondicional.equals("-1")) {
                                     println("\nUspesno ste ponistili akciju\n")
                                     continue
                                 }
-                                data = calcEngine.calculateCount(data, kolona, 0, condition = {element -> element.contains(kondicional)})
+                                data = calcEngine.calculateCount(
+                                    data,
+                                    kolona,
+                                    0,
+                                    condition = { element -> element.contains(kondicional) })
                                 printData(data)
                             }
+
                             2 -> {
                                 println("Unesite broj po kojem poredimo")
                                 val kondicional = userReader.readLine().toString()
-                                if(kolona == "-1") {
+                                if (kolona == "-1") {
                                     println("\nUspesno ste ponistili akciju\n")
                                     continue
                                 }
-                                println("\nDa li prebrojavamo vece/manje brojeve od unetog broja? "+kondicional)
+                                println("\nDa li prebrojavamo vece/manje brojeve od unetog broja? " + kondicional)
                                 val vm = userReader.readLine().toString()
-                                if(vm == "-1") {
+                                if (vm == "-1") {
                                     println("\nUspesno ste ponistili akciju\n")
                                     continue
                                 }
-                                val veceManje = if(vm.contains("vece")) 1 else -1
-                                if(veceManje==1){
-                                    data = calcEngine.calculateCount(data, kolona, veceManje, condition = {element -> (element.toDouble() > kondicional.toDouble())})
+                                val veceManje = if (vm.contains("vece")) 1 else -1
+                                if (veceManje == 1) {
+                                    data = calcEngine.calculateCount(
+                                        data,
+                                        kolona,
+                                        veceManje,
+                                        condition = { element -> (element.toDouble() > kondicional.toDouble()) })
                                     printData(data)
-                                }
-                                else {
-                                    data = calcEngine.calculateCount(data, kolona, veceManje, condition = {element -> (element.toDouble() < kondicional.toDouble())})
+                                } else {
+                                    data = calcEngine.calculateCount(
+                                        data,
+                                        kolona,
+                                        veceManje,
+                                        condition = { element -> (element.toDouble() < kondicional.toDouble()) })
                                     printData(data)
                                 }
                             }
                         }
                     }
-                    2->{
+
+                    2 -> {
                         println("Unesite ime kolone")
                         val kolona = userReader.readLine().toString()
-                        if(kolona == "-1") {
+                        if (kolona == "-1") {
                             println("\nUspesno ste ponistili akciju\n")
                             continue
                         }
                         data = calcEngine.calculateSum(data, kolona)
                     }
-                    3->{
+
+                    3 -> {
                         println("Unesite ime kolone")
                         val kolona = userReader.readLine().toString()
-                        if(kolona == "-1") {
+                        if (kolona == "-1") {
                             println("\nUspesno ste ponistili akciju\n")
                             continue
                         }
@@ -318,7 +386,7 @@ fun main() {
             }
 
             "4" -> {
-                if(eksporter == -1) {
+                if (eksporter == -1) {
                     println("\nIzaberite eksporter prvo")
                     continue
                 }
@@ -330,26 +398,32 @@ fun main() {
                             "CSV -> .csv\n" +
                             "TXT -> .txt"
                 )
-                println("\nVi ste odabrali "+options[eksporter]+"\n")
+                println("\nVi ste odabrali " + options[eksporter] + "\n")
                 var destinacija = userReader.readLine().toString()
                 if (destinacija == "-1") {
                     println("\nUspesno ste ponistili akciju")
                     continue
                 }
 
-                if(exporterServices[options[eksporter]]!!.supportsFormatting) {
+                if (exporterServices[options[eksporter]]!!.supportsFormatting) {
                     println(formattingConfig)
-                    exporterServices[options[eksporter]]?.generateReportWithFormatting(data, destinacija,true,"Izvestaj","Summary",formattingConfig)
-                }
-                else exporterServices[options[eksporter]]?.generateReport(data, destinacija, true)
-                println("\nUspesno ste ispisali izvestaj sa "+options[eksporter]+" eksporterom\n")
+                    exporterServices[options[eksporter]]?.generateReportWithFormatting(
+                        data,
+                        destinacija,
+                        true,
+                        "Izvestaj",
+                        "Summary",
+                        formattingConfig
+                    )
+                } else exporterServices[options[eksporter]]?.generateReport(data, destinacija, true)
+                println("\nUspesno ste ispisali izvestaj sa " + options[eksporter] + " eksporterom\n")
             }
 
             "5" -> {
                 println(tutorial)
             }
 
-            "6" ->{
+            "6" -> {
                 printData(data)
             }
 
@@ -365,8 +439,7 @@ private fun testAppInstant(
     data: Map<String, List<String>>,
     calcEngine: CalculationEngine,
     exporterServices: Map<String, ReportInterface>
-)
-{
+) {
     var myData = data
 
     myData = calcEngine.calculateAverage(myData, "ESPB")
@@ -376,9 +449,40 @@ private fun testAppInstant(
     myData = calcEngine.calculateCount(myData, "ESPB")
     myData = calcEngine.calculateCount(myData, "group")
 
-    exporterServices["TXT"]?.generateReport(myData, "reported.txt", true)
-    exporterServices["CSV"]?.generateReport(myData, "reported.csv", true)
-    exporterServices["XLS"]?.generateReport(myData, "reported.xlsx", true)
+    exporterServices["TXT"]?.generateReport(myData, "reported.txt", true, "Yokoso")
+    exporterServices["CSV"]?.generateReport(myData, "reported.csv", true, "Watashi")
+    exporterServices["XLS"]?.generateReport(myData, "reported.xlsx", true, "No")
+    exporterServices["PDF"]?.generateReport(myData, "reported.pdf", true, "Soul Society")
+
+
+    // explodes if columns non-existent
+    val hdrEspbFormatting = HeaderFormatting("ESPB")
+    hdrEspbFormatting.options.color = "#FF0000"
+    val hdrGroupFormatting = HeaderFormatting("group")
+    hdrGroupFormatting.options.isItalic = true
+    hdrGroupFormatting.options.isUnderline = true
+
+    val colEspbFormatting = ColumnFormatting("ESPB")
+    colEspbFormatting.options.isItalic = true
+    val colGroupFormatting = ColumnFormatting("group")
+    colGroupFormatting.options.isItalic = true
+    colGroupFormatting.options.isUnderline = true
+    colGroupFormatting.options.isBold = true
+
+    exporterServices["PDF"]?.generateReportWithFormatting(
+        myData, "reported_la_formatted.pdf", true, "Soul Society",
+        config = FormattingConfig(
+            headerFormats = listOf(
+                hdrEspbFormatting, hdrGroupFormatting
+            ),
+            columnFormats = listOf(
+                colEspbFormatting, colGroupFormatting
+            ),
+            titleFontSize = 24f,
+            columnHeaderFontSize = 14f,
+            dataFontSize = 12f
+        )
+    )
 
     Thread.sleep(99999999999)
 }

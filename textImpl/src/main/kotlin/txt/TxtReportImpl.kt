@@ -75,11 +75,6 @@ class TxtReportImpl : ReportInterface {
             populateCalculationRow(writer, data,  "Sum")
             populateCalculationRow(writer, data, "Count")
         }
-
-        // calculation exporting
-        pw.use { writer ->
-
-        }
     }
 
     override fun generateReportWithFormatting(
