@@ -34,6 +34,10 @@ class PdfReportImpl : ReportInterface {
             // Open the document for writing
             document.open()
 
+            val keysWithoutCalcs = data.keys.filter { x ->
+                !x.contains("_Average") && !x.contains("_Sum") && !x.contains("Count")
+            }
+
             // Add title if provided2
             title?.let {
                 val titleParagraph = Paragraph(it, getFont(HELVETICA_BOLD, 18f))
@@ -43,7 +47,7 @@ class PdfReportImpl : ReportInterface {
             }
 
             // Create a table based on the number of columns in the data
-            val columns = data.keys.toList()
+            val columns = keysWithoutCalcs.toList()
             val numColumns = columns.size
             val table = PdfPTable(numColumns)
 
@@ -65,6 +69,7 @@ class PdfReportImpl : ReportInterface {
                 }
             }
 
+
             // Add the table to the document
             document.add(table)
 
@@ -74,6 +79,10 @@ class PdfReportImpl : ReportInterface {
                 val summaryParagraph = Paragraph("Summary: $summary", getFont(HELVETICA_OBLIQUE))
                 document.add(summaryParagraph)
             }
+
+            val avgRows = populateCalculationRows(document, data, "Average", startRow = numRows + 4)
+            val sumRows = populateCalculationRows(document, data, "Sum", startRow = avgRows + 2)
+            val countRows = populateCalculationRows(document, data, "Count", startRow = sumRows + 2)
         } catch (e: Exception) {
             e.printStackTrace()
         } finally {
@@ -104,6 +113,10 @@ class PdfReportImpl : ReportInterface {
 
             val dataFont =  getFont(HELVETICA, config.dataFontSize)
 
+            val keysWithoutCalcs = data.keys.filter { x ->
+                !x.contains("_Average") && !x.contains("_Sum") && !x.contains("Count")
+            }
+
             // Add title if provided
             title?.let {
                 val titleParagraph = Paragraph(it, titleFont)
@@ -113,7 +126,7 @@ class PdfReportImpl : ReportInterface {
             }
 
             // Create a table based on the number of columns in the data
-            val columns = data.keys.toList()
+            val columns = keysWithoutCalcs.toList()
             val numColumns = columns.size
             val table = PdfPTable(numColumns)
 
@@ -121,7 +134,8 @@ class PdfReportImpl : ReportInterface {
             if (header) {
                 columns.forEach { column ->
                     //pitamo da li nije ni jedan ni drugi, vratimo TIMES
-                    val font = if(!config.getHeaderFormat(column).isBold && !config.getHeaderFormat(column).isItalic) TIMES
+                    val font = if(!config.getHeaderFormat(column).isBold && !config.getHeaderFormat(column).isItalic)
+                        TIMES
                     //u ovaj else skliznemo ako znamo da je barem jedan ili oba
                     //pa cemo pitati da li je jedan i drugi
                     else if(config.getHeaderFormat(column).isBold && config.getHeaderFormat(column).isItalic) {
@@ -172,6 +186,10 @@ class PdfReportImpl : ReportInterface {
                 val summaryParagraph = Paragraph("Summary: $summary", getFont(HELVETICA_OBLIQUE))
                 document.add(summaryParagraph)
             }
+
+            val avgRows = populateCalculationRowsFormatted(document, data, "Average", startRow = numRows + 4, config)
+            val sumRows = populateCalculationRowsFormatted(document, data, "Sum", startRow = avgRows + 2, config)
+            val countRows = populateCalculationRowsFormatted(document, data, "Count", startRow = sumRows + 2, config)
         } catch (e: Exception) {
             e.printStackTrace()
         } finally {
@@ -179,6 +197,65 @@ class PdfReportImpl : ReportInterface {
             document.close()
         }
     }
+
+    private fun populateCalculationRows(document: Document, data: Map<String, List<String>>, columnSuffix: String, startRow: Int)
+    : Int {
+        val summaryColumnNames = data.keys.filter { it.contains("_$columnSuffix") }
+            .map { it.removeSuffix("_$columnSuffix") }
+        if (summaryColumnNames.isEmpty()) return 0
+
+        val table = PdfPTable(2)
+        table.addCell(PdfPCell(Paragraph("Column Name", getFont(HELVETICA_BOLD))))
+        table.addCell(PdfPCell(Paragraph(columnSuffix, getFont(HELVETICA_BOLD))))
+
+        summaryColumnNames.forEach { colName ->
+            table.addCell(colName)
+            table.addCell(data["${colName}_$columnSuffix"]?.get(0) ?: "N/A")
+        }
+
+        document.add(Chunk.NEWLINE)
+        document.add(table)
+
+        return table.rows.size + 2
+    }
+
+    private fun populateCalculationRowsFormatted(
+        document: Document,
+        data: Map<String, List<String>>,
+        columnSuffix: String,
+        startRow: Int,
+        config: FormattingConfig
+    ): Int {
+        val summaryColumnNames = data.keys.filter { it.contains("_$columnSuffix") }
+            .map { it.removeSuffix("_$columnSuffix") }
+        if (summaryColumnNames.isEmpty()) return startRow
+
+        val table = PdfPTable(2)
+
+        // Header Font
+        val headerFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12f)
+        val suffixFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12f)
+
+        // Add Header Row
+        table.addCell(PdfPCell(Paragraph("Column Name", headerFont)))
+        table.addCell(PdfPCell(Paragraph(columnSuffix, suffixFont)))
+
+        // Add Data Rows
+        summaryColumnNames.forEach { colName ->
+            val columnFont = FontFactory.getFont(FontFactory.HELVETICA, 10f)
+            val dataFont = FontFactory.getFont(FontFactory.HELVETICA, 10f)
+
+            table.addCell(PdfPCell(Paragraph(colName, columnFont)))
+            table.addCell(PdfPCell(Paragraph(data["${colName}_$columnSuffix"]?.get(0) ?: "N/A", dataFont)))
+        }
+
+        document.add(Chunk.NEWLINE)
+        document.add(table)
+
+        // The number of rows added includes the header row and data rows
+        return startRow + summaryColumnNames.size + 1
+    }
+
 
 }
 
